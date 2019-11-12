@@ -1,0 +1,25 @@
+[package]
+name = "pipeline"
+version = "0.1.0"
+build = "build.rs"
+exclude = ["artifacts.json", "index.node"]
+edition = "2018"
+
+[lib]
+name = "pipeline"
+crate-type = ["cdylib"]
+path = "src/lib.rs"
+
+#[[bin]]
+#name = "pipebin"
+#path = "src/bin.rs"
+
+[build-dependencies]
+neon-build = "0.3.1"
+
+[dependencies]
+neon = "0.3.1"
+neon-serde = "0.2.0"
+serde_json = "1.0"
+serde_derive = "1.0.80"
+serde = "1.0.80"

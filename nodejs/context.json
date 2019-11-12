@@ -1,0 +1,5 @@
+[
+  {"_id":"5dbbf356f18ff7488e9b1097","pclassid":"5dbaa731f18ff7488e9b108b","pfunction":{"signature":"sayHello(string)","gapi":{"constant":true,"inputs":[{"type":"string","name":"input1"}],"name":"map","outputs":[{"type":"string","name":"array"}],"payable":false,"stateMutability":"pure","type":"function"},"source":"a => rust.sayHello(a)","graph":{},"chainids":[]},"tags":["javascript"],"timestamp":""},
+  {"_id":"5dbbf356f18ff7488e9b1099","pclassid":"5dbaa731f18ff7488e9b108b","pfunction":{"signature":"fibonacci(number)","gapi":{"constant":true,"inputs":[{"type":"number","name":"number"}],"name":"map","outputs":[{"type":"number","name":"fib"}],"payable":false,"stateMutability":"pure","type":"function"},"source":"a => rust.fibonacci(a)","graph":{},"chainids":[]},"tags":["javascript"],"timestamp":""}
+  
+]

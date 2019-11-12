@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+ <!-- Font Awesome -->
+ <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+  
+<style>
+html,  body, main, #draw {
+    width: 100%;
+    height: 100%;
+    margin: auto;
+}
+
+
+</style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="https://raw.githubusercontent.com/daneden/animate.css/master/animate.css">
+    <link rel="stylesheet" href="css/mdb.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+
+    <link rel="stylesheet" href="css/js-offcanvas.css">
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed&display=swap" rel="stylesheet"></link>
+
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+      <script src="https://peterolson.github.io/BigInteger.js/BigInteger.min.js"></script>
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/3.0.13/svg.min.js" integrity="sha256-lGl8w8KbUgg+8cFC38Erx5NRwynFuqFLvdwkdR9ggjM=" crossorigin="anonymous"></script>
+      <!-- <script src="js/svg.draggable.js"></script> -->
+
+      <script src="js/sanct/sanctuary-show/index.js"></script>
+      <script src="js/sanct/sanctuary-type-identifiers/index.js"></script>
+      <script src="js/sanct/sanctuary-type-classes/index.js"></script>
+      <script src="js/sanct/sanctuary-either/index.js"></script>
+      <script src="js/sanct/sanctuary-maybe/index.js"></script>
+      <script src="js/sanct/sanctuary-pair/index.js"></script>
+      <script src="js/sanct/sanctuary-def/index.js"></script>
+      <script src="js/sanct/sanctuary/index.js"></script>
+      <script src="js/data.js"></script>
+     
+
+      
+
+    <title>Pipeline</title>
+
+</head>
+
+<body>
+
+  <!-- Default form subscription -->
+<form class="text-center border border-light p-5" action="#!">
+
+    <input type="text" id="sig" class="form-control mb-4" placeholder="Sig" onchange="fromSig();">
+
+    <input type="text" id="name" class="form-control mb-4" placeholder="Name">
+
+    <input type="text" id="ins" class="form-control mb-4" placeholder="Ins" onchange="onIns();">
+
+    <input type="text" id="outs" class="form-control mb-4" placeholder="Outs" onchange="onOuts();" value="[]">
+
+    <input type="text" id="type" class="form-control mb-4" placeholder="Type" value="function">
+
+    <div class="form-group">
+        <label for="abi">abi</label>
+        <textarea class="form-control rounded-0" id="abi" rows="5"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="source">source</label>
+        <textarea class="form-control rounded-0" id="source" rows="3"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="graph">graph</label>
+        <textarea class="form-control rounded-0" id="graph" rows="3">{}</textarea>
+    </div>
+
+    <!-- Sign in button -->
+    <button class="btn btn-info btn-block" type="button" onclick="insertFunc()">Insert</button>
+
+    <button class="btn btn-block" type="reset" >Reset</button>
+
+
+</form>
+<!-- Default form subscription -->
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script src="js/js-offcanvas.pkgd.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+<script>
+const S = window.sanctuary
+const _ =  window.sanctuaryDef;
+const env = _.env;
+
+const def = _.create ({
+  checkTypes: true,
+  env,
+});
+
+(function($) {
+    $.QueryString = (function(paramsArray) {
+        let params = {};
+
+        for (let i = 0; i < paramsArray.length; ++i)
+        {
+            let param = paramsArray[i]
+                .split('=', 2);
+
+            if (param.length !== 2)
+                continue;
+
+            params[param[0]] = decodeURIComponent(param[1].replace(/\+/g, " "));
+        }
+
+        return params;
+    })(window.location.search.substr(1).split('&'))
+})(jQuery);
+
+function fromSig(){
+  let sig  =  $("#sig").val()
+  let ndx1 = sig.indexOf("(")
+  let ndx2 = sig.indexOf(")")
+  let name = sig.slice(0,ndx1)
+  let str_args = sig.slice(ndx1+1,ndx2)
+  console.log(ndx1, sig, name, str_args)
+  $("#name").val(name)
+
+  let aargs = str_args.split(",")
+  let fin_ins = []
+  aargs.forEach(element => {
+    fin_ins.push({type: element, name:  ""})
+  });
+
+  $("#ins").val(JSON.stringify(fin_ins))
+
+
+
+}
+
+function onIns() {
+  changeAbi()
+}
+
+function onOuts() {
+  changeAbi()
+}
+
+function changeAbi(){
+  let ins = JSON.parse($("#ins").val())
+  let outs = JSON.parse($("#outs").val())
+  let  abi = {
+    "constant": true,
+    "inputs": ins,
+    "name": $("#name").val(),
+    "outputs": outs,
+    "payable": false,
+    "stateMutability": "pure",
+    "type": $("#type").val()
+  }
+  let inp_abi =  $("#abi").val()
+  if (inp_abi  != "")  {
+    abi = JSON.parse(inp_abi)
+    abi.inputs  = ins
+    abi.outputs  = outs
+  
+  }
+
+  $("#abi").val(JSON.stringify(abi))
+
+}
+
+function functionName(fun) {
+  var ret = fun.toString();
+  ret = ret.substr('function '.length);
+  ret = ret.substr(0, ret.indexOf('('));
+  return ret;
+}
+
+var wrapFun = function(fn, typesIn, typesOut){
+  console.log(getParameterNames(fn), functionName(fn))
+  var ndx  = -1
+  var inputs = getParameterNames(fn).map(x=>{ ndx++; return {"name":x, "type": typesIn[ndx]};})
+  ndx = -1
+  var outputs = typesOut.map(x=>{ndx++; return {"name": "out_"+x, "type": x};})
+
+  return {
+    run: function(){
+    try{
+      return fn.apply(this, arguments);
+    }catch(ex){
+      ErrorHandler.Exception(ex);
+    }
+  },
+    abi: {
+    "constant": true,
+    "inputs": inputs,
+    "name": functionName(fn),
+    "outputs": outputs,
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+    }
+  };
+};
+
+function insertFunc(){
+  console.log($("#sig").val())
+  let sig  =  $("#sig").val()
+  const generate = def ("generate") ({})
+    ([_.Type, _.Any, _.Any])
+    ( type => value => {
+      if (S.is (type) (value)) return value
+    })
+  
+  console.log("gen",generate(_.Number) ("3"))
+
+  const wrapp = def ('wrapp')
+  ({})
+  ([_.AnyFunction, _.StrMap(_.NonEmpty (_.String)), _.StrMap(_.NonEmpty (_.String)), _.RecordType({run: _.AnyFunction, api: _.Object})])
+  (fn => ins => outs => {
+    var ndx  = -1
+    console.log(ins)
+    const names = Object.keys (ins);
+    const types = Object.values (ins);
+    const inputs = names.map(n=>{ ndx++; return {name: n, type: types[ndx]}})
+    ndx = -1
+    const names2 = Object.keys (outs);
+    const types2 = Object.values (outs);
+    const outputs = names2.map(n=>{ ndx++; return {name: n, type: types2[ndx]}})
+    return {
+    run: fn,
+    api: {
+      "constant": true,
+        "inputs": inputs,
+        "name": functionName(fn),
+        "outputs": outputs,
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    }
+    }
+  })
+
+
+  obj = {
+  "pclassid":"5dbaa731f18ff7488e9b108b",
+  "pfunction":{
+    "signature": sig,
+    "gapi": JSON.parse($("#abi").val()),
+    "source": $("#source").val(),
+    "graph": JSON.parse($("#graph").val()),
+    "chainids":[]
+  },
+  "tags":[
+    "javascript"
+  ]
+}
+
+axios.post('http://192.168.1.140:3001/pfunction', obj)
+  .then(function (response) {
+    console.log("response",response);
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+
+  
+}
+
+console.log($.QueryString["graph"])
+if ($.QueryString["graph"]) {
+  $("#graph").val($.QueryString["graph"])
+}
+
+
+</script>
+</body>
+
+</html>
