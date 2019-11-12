@@ -687,6 +687,7 @@ sol["any"] = _.Any;
 sol["array"] = _.Array;
 sol["function"] = _.AnyFunction;
 sol["number[]"] = _.Array(sol["number"]);
+sol["string[]"] = _.Array(sol["string"]);
 
 //    env :: Array Type
 const env = _.env;
