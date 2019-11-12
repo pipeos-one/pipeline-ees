@@ -17,7 +17,7 @@ async function runTests() {
     for (let graph of graphs) {
         for (let io of graph.io) {
             const result = await pipe(context, graph.graph, io.input);
-            assert.sameDeepOrderedMembers(result, io.output);
+            assert.sameDeepOrderedMembers(result, [io.output]);
         }
     }
 }
