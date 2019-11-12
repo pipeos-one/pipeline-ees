@@ -1,7 +1,7 @@
 import arg from 'arg';
 import fs from 'fs';
 import pipe from './pipe';
-
+import tests from './tests/tests';
 
 
 var settings = {}, s= settings, options
@@ -18,6 +18,7 @@ function parseArgumentsIntoOptions(rawArgs) {
      '--graphid': String,
      '--ifile': String,
      '--xfile': String,
+     '--run-tests': Boolean,
      '-p': '--provider',
      '-g': '--graphid',
      '-i': '--ifile',
@@ -32,7 +33,8 @@ function parseArgumentsIntoOptions(rawArgs) {
    xfile:  args['--xfile'] || './context.json',
    gfile: args['--gfile'] || './graph.json',
    ifile:  args['--ifile'] || './in.json',
-   graphid: args['--graphid'] || ''
+   graphid: args['--graphid'] || '',
+   runTests: args['--run-tests'] || false,
  };
 }
 
@@ -66,8 +68,12 @@ export function cli(args) {
   //console.log(args)
   options = parseArgumentsIntoOptions(args);
   //console.log(JSON.stringify(options))
+
+  if (options.runTests) {
+    tests();
+    return;
+  }
   fs.readFile(options.gfile, 'utf8', setGraph);
- 
  
  //return options;
 }

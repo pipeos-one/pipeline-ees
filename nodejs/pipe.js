@@ -1606,14 +1606,18 @@ function resolveGraph(context, gra, ins){
   resolveDb(getFuncsFromGraph(gra));
   gra0  = gra
   ins0 = ins
-  setTimeout ( x=>{
-    //graph  = enrich_graph (indexed_func) (gra)
-    let out
-    //console.log("index_funcs", JSON.stringify(indexed_func), gra0)
-    out = fun_graph  (indexed_func) (gra0) (ins0);
-    console.log(out);
-    //doit2()
-  }, 2000);
+  
+  return new Promise((resolve, reject) => {
+    setTimeout ( x=>{
+      //graph  = enrich_graph (indexed_func) (gra)
+      let out
+      //console.log("index_funcs", JSON.stringify(indexed_func), gra0)
+      out = fun_graph  (indexed_func) (gra0) (ins0);
+      console.log(out);
+      resolve(out);
+      //doit2()
+    }, 2000);
+  })
 }
 
 export default resolveGraph;
