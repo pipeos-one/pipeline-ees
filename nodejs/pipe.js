@@ -686,6 +686,7 @@ sol["number"] = _.Number;
 sol["any"] = _.Any;
 sol["array"] = _.Array;
 sol["function"] = _.AnyFunction;
+sol["number[]"] = _.Array(sol["number"]);
 
 //    env :: Array Type
 const env = _.env;
@@ -1009,11 +1010,11 @@ pl["db_func"] = _.RecordType({
   "pfunction": _.RecordType({
     "signature": _.String,
     "gapi": pl["func_abi"],
-    "chainids": _.Array (_.String),
-    "source": _.String,
+    "sources": _.StrMap (_.String),
     "graph": _.Any
   }),
-  "tags": _.Array (_.String),
+  // "tags": _.Array (_.String),
+  "categories": _.StrMap (_.Any),
   "timestamp": _.String
 })
 
@@ -1161,21 +1162,21 @@ gr[2] = {
 
 //// console.log(remove_node(gr) (1))
 
-var funct = {"_id":"5c95397d4212cc40afeec929","pclassid":"5c95397d4212cc40afeec914","pfunction":{"signature":"getQuantity(address,uint256)","gapi":{"constant":true,"inputs":[{"name":"vendor","type":"address"},{"name":"product_id","type":"uint256"}],"name":"getQuantity","outputs":[{"name":"quantity","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},"chainids":["3"]},"tags":["Pipeline Demo Package","ethpm","pipeline","ethpm"],"timestamp":"2019-03-22T14:38:36.112Z"}
-
-var functs = [
-  {"_id":"5c95397d4212cc40afeec929","pclassid":"5c95397d4212cc40afeec914","pfunction":{"signature":"getQuantity(address,uint256)","gapi":{"constant":true,"inputs":[{"name":"term1","type":"number"},{"name":"term2","type":"number"}],"name":"add","outputs":[{"name":"quantity","type":"number"}],"payable":false,"stateMutability":"view","type":"function"},"chainids":["3"]},"tags":["Pipeline Demo Package","ethpm","pipeline","ethpm"],"timestamp":"2019-03-22T14:38:36.112Z", "js": "function(a, b) {return a+b;}"},
-
-  {"_id":"5c95397d4212cc40afeec922","pclassid":"5c95397d4212cc40afeec914","pfunction":{"signature":"getQuantity(address,uint256)","gapi":{"constant":true,"inputs":[{"name":"term1","type":"number"},{"name":"term2","type":"number"}],"name":"subst","outputs":[{"name":"quantity1","type":"number"}, {"name":"quantity2","type":"number"}],"payable":false,"stateMutability":"view","type":"function"},"chainids":["3"]},"tags":["Pipeline Demo Package","ethpm","pipeline","ethpm"],"timestamp":"2019-03-22T14:38:36.112Z", "js": "function(a, b) {return [a*2, b/2];}"},
-
-  {"_id":"5c95397d4212cc40afeec91f","pclassid":"5c95397d4212cc40afeec914","pfunction":{"signature":"getQuantity(address,uint256)","gapi":{"constant":true,"inputs":[{"name":"term1","type":"number"},{"name":"term2","type":"number"}],"name":"mul","outputs":[{"name":"quantity","type":"number"}],"payable":false,"stateMutability":"view","type":"function"},"chainids":["3"]},"tags":["Pipeline Demo Package","ethpm","pipeline","ethpm"],"timestamp":"2019-03-22T14:38:36.112Z", "js": "function(a, b) {return a*b;}"},
-
-  {"_id":"5c95397d4212cc40afeec91a","pclassid":"5c95397d4212cc40afeec914","pfunction":{"signature":"sum(array)","gapi":{"constant":true,"inputs":[{"name":"term1","type":"any"}],"name":"sum","outputs":[{"name":"sum","type":"number"}],"payable":false,"stateMutability":"view","type":"function"},"chainids":["3"]},"tags":["Pipeline Demo Package","ethpm","pipeline","ethpm"],"timestamp":"2019-03-22T14:38:36.112Z", "js": "function(a) {return S.reduce (S.add) (0) (a);}"},
-
-  {"_id":"5c95397d4212cc40afeec91e", "pclassid":"5c95397d4212cc40afeec914","pfunction":{"signature":"map(function,array)","gapi":{"constant":true,"inputs":[{"name":"func","type":"function"},{"name":"array","type":"any"}],"name":"map","outputs":[{"name":"result","type":"any"}],"payable":false,"stateMutability":"view","type":"function"},"chainids":["3"]},"tags":["Pipeline Demo Package","ethpm","pipeline","ethpm"],"timestamp":"2019-03-22T14:38:36.112Z", "js": "S.map"},
-
-  {"_id": s.id,"pclassid":"5c95397d4212cc40afeec914","pfunction":{"signature":"io","gapi":{"constant":true,"inputs":[{"name":"i","type":"any"}],"name":"io","outputs":[{"name":"o","type":"any"}],"payable":false,"stateMutability":"view","type":"function"},"chainids":["3"]},"tags":["Pipeline Demo Package","ethpm","pipeline","ethpm"],"timestamp":"2019-03-22T14:38:36.112Z", "js": "S.I"}
-]
+// var funct = {"_id":"5c95397d4212cc40afeec929","pclassid":"5c95397d4212cc40afeec914","pfunction":{"signature":"getQuantity(address,uint256)","gapi":{"constant":true,"inputs":[{"name":"vendor","type":"address"},{"name":"product_id","type":"uint256"}],"name":"getQuantity","outputs":[{"name":"quantity","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},"chainids":["3"]},"categories"{"tags":["Pipeline Demo Package","ethpm","pipeline","ethpm"]},"timestamp":"2019-03-22T14:38:36.112Z"}
+//
+// var functs = [
+//   {"_id":"5c95397d4212cc40afeec929","pclassid":"5c95397d4212cc40afeec914","pfunction":{"signature":"getQuantity(address,uint256)","gapi":{"constant":true,"inputs":[{"name":"term1","type":"number"},{"name":"term2","type":"number"}],"name":"add","outputs":[{"name":"quantity","type":"number"}],"payable":false,"stateMutability":"view","type":"function"},"chainids":["3"]},"categories"{"tags":["Pipeline Demo Package","ethpm","pipeline","ethpm"]},"timestamp":"2019-03-22T14:38:36.112Z", "js": "function(a, b) {return a+b;}"},
+//
+//   {"_id":"5c95397d4212cc40afeec922","pclassid":"5c95397d4212cc40afeec914","pfunction":{"signature":"getQuantity(address,uint256)","gapi":{"constant":true,"inputs":[{"name":"term1","type":"number"},{"name":"term2","type":"number"}],"name":"subst","outputs":[{"name":"quantity1","type":"number"}, {"name":"quantity2","type":"number"}],"payable":false,"stateMutability":"view","type":"function"},"chainids":["3"]},"categories"{"tags":["Pipeline Demo Package","ethpm","pipeline","ethpm"]},"timestamp":"2019-03-22T14:38:36.112Z", "js": "function(a, b) {return [a*2, b/2];}"},
+//
+//   {"_id":"5c95397d4212cc40afeec91f","pclassid":"5c95397d4212cc40afeec914","pfunction":{"signature":"getQuantity(address,uint256)","gapi":{"constant":true,"inputs":[{"name":"term1","type":"number"},{"name":"term2","type":"number"}],"name":"mul","outputs":[{"name":"quantity","type":"number"}],"payable":false,"stateMutability":"view","type":"function"},"chainids":["3"]},"categories"{"tags":["Pipeline Demo Package","ethpm","pipeline","ethpm"]},"timestamp":"2019-03-22T14:38:36.112Z", "js": "function(a, b) {return a*b;}"},
+//
+//   {"_id":"5c95397d4212cc40afeec91a","pclassid":"5c95397d4212cc40afeec914","pfunction":{"signature":"sum(array)","gapi":{"constant":true,"inputs":[{"name":"term1","type":"any"}],"name":"sum","outputs":[{"name":"sum","type":"number"}],"payable":false,"stateMutability":"view","type":"function"},"chainids":["3"]},"categories"{"tags":["Pipeline Demo Package","ethpm","pipeline","ethpm"]},"timestamp":"2019-03-22T14:38:36.112Z", "js": "function(a) {return S.reduce (S.add) (0) (a);}"},
+//
+//   {"_id":"5c95397d4212cc40afeec91e", "pclassid":"5c95397d4212cc40afeec914","pfunction":{"signature":"map(function,array)","gapi":{"constant":true,"inputs":[{"name":"func","type":"function"},{"name":"array","type":"any"}],"name":"map","outputs":[{"name":"result","type":"any"}],"payable":false,"stateMutability":"view","type":"function"},"chainids":["3"]},"categories"{"tags":["Pipeline Demo Package","ethpm","pipeline","ethpm"]},"timestamp":"2019-03-22T14:38:36.112Z", "js": "S.map"},
+//
+//   {"_id": s.id,"pclassid":"5c95397d4212cc40afeec914","pfunction":{"signature":"io","gapi":{"constant":true,"inputs":[{"name":"i","type":"any"}],"name":"io","outputs":[{"name":"o","type":"any"}],"payable":false,"stateMutability":"view","type":"function"},"chainids":["3"]},"categories"{"tags":["Pipeline Demo Package","ethpm","pipeline","ethpm"]},"timestamp":"2019-03-22T14:38:36.112Z", "js": "S.I"}
+// ]
 
 const ffuncs = ["5dbaa731f18ff7488e9b108b"]  //,"5dbae12df18ff7488e9b108f"]
 
