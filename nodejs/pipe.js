@@ -14,7 +14,7 @@ const instance = axios.create({
 var marker
 let sol = {}
 let xr =10
-let currentPoint 
+let currentPoint
 var settings  ={}, s = settings;
 s.start = null
 s.end  = null
@@ -74,9 +74,9 @@ function doit2(){
   draw.clear()
   texts = draw.group()
 
-  
+
   //graph  = run_gr
-  
+
 
   //// console.log("graph", graph)
   marker = draw.marker(xr/co, xr/co, function(add) {
@@ -98,7 +98,7 @@ function doit2(){
     //max =  Math.max( fx.abi.inputs.length, fx.abi.outputs.length)
     //draw.rect(50,yn/2).move(fx.position.x*xn*2, fx.position.y*yn)
     drawNode(fx)
-    
+
   }) (graph.n)
 
   S.map (fx => {
@@ -109,7 +109,7 @@ function doit2(){
       let p2  = graph.n[fx[2]].position
       //// console.log(fx, p1, p2)
       let arrow = drawArrow(p1.x*4+(fx[1]-1)*4+3, p1.y*8+4, p2.x*4+(fx[3]-1)*4+3, p2.y*8+0)
-  
+
       arrow.data("edge", fx)
       arrow.on("dblclick", function(e){
         // console.log(this, this.data("edge"))
@@ -120,10 +120,10 @@ function doit2(){
       })
     }
 
-    
+
   }) (graph.e)
 
-  
+
   // const cast = type => obj => {
   //   const names = Object.keys (type.types);
   //   const types = Object.values (type.types);
@@ -145,13 +145,13 @@ function doit2(){
   //         ? S.Just (S.unchecked.fromPairs (S.unchecked.zip (names) (values)))
   //         : S.Nothing;
   // };
-  
+
   // const failure = cast ({_.RecordType ({x: _.Number, y: _.String})})
   //                      (_.RecordType ({x: _.String, y: _.String}));
-  
+
   // const success = cast (_.RecordType ({x: _.Number, y: _.String}))
   //                      (_.RecordType ({a: _.Number, bb: _.String}));
-  
+
   // // console.log(S.show(failure))
   // // console.log(S.show(success));
 
@@ -247,7 +247,7 @@ function drawNode(n) {
   var lsi = []
   var lso = []
   var mode =0
-  
+
   function fold(){
     r.animate(anim).attr({ width: xn })
     gr2.animate(anim).attr({opacity: 0})
@@ -295,18 +295,18 @@ function drawNode(n) {
     }
     for (const key in pso){
       pso[key].animate(anim).attr({
-        x: n.position.x*xn+ key*xn+xr*2, 
+        x: n.position.x*xn+ key*xn+xr*2,
         y: (-n.position.y-.5)*yn
       })
     }
     for (const key in lsi){
       lsi[key].animate(anim).move(
-        (( 0+key)*xn+n.position.x*xn-(n.position.y)*yn+xr*3)/sq2, 
+        (( 0+key)*xn+n.position.x*xn-(n.position.y)*yn+xr*3)/sq2,
         (( 0+key)*xn+n.position.x*xn+(n.position.y)*yn+xr*3)/sq2
       )
     }
     for (const key in lso){
-      lso[key].animate(anim).move((( 0+key)*xn+n.position.x*xn-(n.position.y)*yn-tx.length())/sq2, 
+      lso[key].animate(anim).move((( 0+key)*xn+n.position.x*xn-(n.position.y)*yn-tx.length())/sq2,
       (( 0+key)*xn+n.position.x*xn+(n.position.y)*yn+xr*2+tx.length())/sq2)
     }
   }
@@ -351,7 +351,7 @@ function drawNode(n) {
       }
       doit2()
     })
-  
+
 
 
 
@@ -381,18 +381,18 @@ function drawNode(n) {
     // console.log(key)
     let t  = remove_node (graph.init) (key)
     graph = enrich_graph (indexed_func) (t)
-    run_gr = make_runtime (indexed_func) (graph) 
+    run_gr = make_runtime (indexed_func) (graph)
     doit2()
   })
 
   }
 
-  
-  
+
+
 
   var lb = texts.text(shorten(n.id,8*max-2)+"\n"+shorten(node_info.name,8*max-2)).move(xr*2+n.position.x*xn-xr/2,n.position.y*yn+xr/1.5).attr({ fill: colors["text"], "opacity": 0,"font-family": s.font, "font-size": xr*1})
 
-  
+
 
   var ports = gr.group()
   var gr2 = gr.group()
@@ -407,7 +407,7 @@ function drawNode(n) {
       let t = add_edge (graph.init) (s.start.data("key").concat(this.data("key")))
 
       graph = enrich_graph (indexed_func) (t)
-      run_gr = make_runtime (indexed_func) (graph) 
+      run_gr = make_runtime (indexed_func) (graph)
       s.start  = s.end = null
       doit2()
       // // console.log(t)
@@ -425,7 +425,7 @@ function drawNode(n) {
       let t = add_edge (graph.init) (s.end.data("key").concat(this.data("key")))
 
       graph = enrich_graph (indexed_func) (t)
-      run_gr = make_runtime (indexed_func) (graph) 
+      run_gr = make_runtime (indexed_func) (graph)
       s.start  = s.end = null
       doit2()
       // // console.log(t)
@@ -437,8 +437,8 @@ function drawNode(n) {
       s.start = this
     }
   }
-  
-  
+
+
   var s2, tx,key2;
   for (const key in node_info.inputs) {
     s2 = ports.use(s1)
@@ -453,7 +453,7 @@ function drawNode(n) {
     if (with_labels) {
       tx = texts.text(shorten(node_info.inputs[key].name, 8)).attr({"font-family": s.font, "font-size":fs, "text-anchor": "start"}).addClass("noselect")
       tx.rotate(rotate, 0, 0).move(
-        (( 0+key)*xn+n.position.x*xn-(n.position.y)*yn+xr*3)/sq2, 
+        (( 0+key)*xn+n.position.x*xn-(n.position.y)*yn+xr*3)/sq2,
         (( 0+key)*xn+n.position.x*xn+(n.position.y)*yn+xr*3)/sq2
       ) // ,0,fs
       //// console.log(tx.transform())
@@ -462,7 +462,7 @@ function drawNode(n) {
 
     s2.on("touchstart", st1)
     s2.on("click", st1)
-    
+
   }
 
   for (const key in node_info.outputs) {
@@ -478,7 +478,7 @@ function drawNode(n) {
     if (with_labels) {
       tx = texts.text(shorten(node_info.outputs[key].name, 10)).attr({"font-family": s.font, "font-size":fs, "text-anchor": "end"}).addClass("noselect")
       tx.rotate(rotate, 0, 0).move(
-        (( 0+key)*xn+n.position.x*xn-(n.position.y)*yn-tx.length())/sq2, 
+        (( 0+key)*xn+n.position.x*xn-(n.position.y)*yn-tx.length())/sq2,
         (( 0+key)*xn+n.position.x*xn+(n.position.y)*yn+xr*2+tx.length())/sq2
       )
       lso.push(tx)
@@ -513,7 +513,7 @@ function drawNode(n) {
 
 
 
-  
+
 
 
 
@@ -560,7 +560,7 @@ function drawNodes(gn){
   for (const key in gn[0].n) {
     if (gn[0].n.hasOwnProperty(key)) {
       drawNode(gn[0].n[key]);
-      
+
     }
   }
 }
@@ -844,12 +844,12 @@ const wrap2 = def ('wrap2')
   ([_.AnyFunction, _.Object, _.AnyFunction])
   (fn => abi => {
     const outType = _.RecordType(S.unchecked.fromPairs (S.unchecked.zip (abi.outputs.map(out => out.name)) (abi.outputs.map(out => out.type))))
-    return def (functionName(fn)) ({}) 
+    return def (functionName(fn)) ({})
       ([
           //abi.inputs.map(inn => inn.type)
           _.RecordType(S.unchecked.fromPairs (S.unchecked.zip (abi.inputs.map(inn => inn.name)) (abi.inputs.map(inn => inn.type))))
         ,
-          //_.Any  // 
+          //_.Any  //
           outType
       ])
       (ins => {
@@ -870,12 +870,12 @@ const wrap2 = def ('wrap2')
           if ( type_ans != "array" && type_ans != "object") {
             return cast (outType) ([ans])
           }
-          return cast (outType) (ans) 
+          return cast (outType) (ans)
         }
-        
+
         // console.log(len1, len2)
-        
-        
+
+
         //S.unchecked.fromPairs (S.unchecked.zip (abi.outputs.map(out => out.name)) (fn.map(out => out.type)))
       }
       )
@@ -926,12 +926,12 @@ var f3 = wrap2(S.add) ({
 
 //// console.log(func1.call(this, {num:8}))
 // console.log(f2({"num1":bigInt(30), "num2":bigInt(17)}) )   // bigInt(7)
-// console.log(f3({"num1":30, "num2":17}) ) 
+// console.log(f3({"num1":30, "num2":17}) )
 var pipeline = {}, pl = pipeline;
 
 
 const MongoId = _.NullaryType  ('mongoid') (baseurl+'mongoid') ([])
-  (x => S.is (_.String) (x)// && bigInt(x, 16).geq(0) && bigInt(x, 16).lesser(two.pow(12*8)) 
+  (x => S.is (_.String) (x)// && bigInt(x, 16).geq(0) && bigInt(x, 16).lesser(two.pow(12*8))
   )
 
 pl["node"] = _.RecordType({"i": _.Number, "id": MongoId})
@@ -941,7 +941,7 @@ pl["rich_node"] = _.RecordType({
    "out": _.StrMap (_.Array (_.Array (_.Number))),
    "in": _.StrMap (_.Array (_.Number)),
    "position": _.RecordType({
-    "x": _.Number, 
+    "x": _.Number,
     "y": _.Number
     }),
     "edges": _.Array (_.String)
@@ -964,23 +964,23 @@ pl["edges"] = _.Array (pl["edge"])
 pl["runtime"]  = _.Array (_.Any)
 pl["graph"] = _.NullaryType  ('graph') (baseurl+'graph') ([])
   (
-    x => S.is (_.RecordType({"n": pl["nodes"], "e": pl["edges"], r: pl["runtime"]})) (x) 
+    x => S.is (_.RecordType({"n": pl["nodes"], "e": pl["edges"], r: pl["runtime"]})) (x)
     //&& S.map (edge => (x.n[edge[0]] || x.r[edge[0]]) && (x.n[edge[2]] || x.r[edge[2]]) (x.e) )
-      
+
       )
 pl["rich_graph"] = _.NullaryType  ('rich_graph') (baseurl+'rich_graph') ([])
   (
-    x => S.is (_.RecordType({ "n": pl["rich_nodes"], "e": pl["edges"], "r": pl["runtime"], init: pl["graph"]})) (x) 
+    x => S.is (_.RecordType({ "n": pl["rich_nodes"], "e": pl["edges"], "r": pl["runtime"], init: pl["graph"]})) (x)
   )
 
 pl["graph_history"] = _.Array (pl["graph"])
 
 pl["io"]  = _.NullaryType ('io') (baseurl+'graph') ([])
-    ( x => 
+    ( x =>
       S.is (_.RecordType({"name": _.String, "type": _.String})) (x) &&
       S.is (_.Type) (sol[x.type])
     )
-  
+
 pl["abi_type"]  = _.EnumType
   ('abi_type')
   (baseurl+'abi_type')
@@ -1065,10 +1065,10 @@ function indexInArray(array, item) {
     for (var i = 0; i < array.length; i++) {
         // This if statement depends on the format of your array
         if (
-            array[i][0] == item[0] && 
+            array[i][0] == item[0] &&
             array[i][1] == item[1] &&
-            array[i][2] == item[2] && 
-            array[i][3] == item[3] 
+            array[i][2] == item[2] &&
+            array[i][3] == item[3]
           ) {
             return i;   // Found it
         }
@@ -1273,7 +1273,7 @@ function positionNodes(gf, unvisited, visited, visitors, level){
 
   S.map (n => {
     if ((inputNodesAreVisited(gf.n[n], visited)  || inputNodesAreDefined(gf.n[n], gf.r, level)) && (level >0 || n > 2000)){
-      S.flip (visitors) ({node: gf.n[n] , level: level, row: row, context: indexed_func}) 
+      S.flip (visitors) ({node: gf.n[n] , level: level, row: row, context: indexed_func})
       row = row+1
       if (only_outputs || n < 4000) visitedNow.push(n)
     }
@@ -1295,18 +1295,18 @@ function addNodesEdges(grf, context){
     n => {
       for (let i = 1 ; i <=context[n.id].pfunction.gapi.outputs.length; i++){
         if (!(""+i in n.out) && n.id != s.id) {
-          let no = { 
-            i: step_out,  
-            svg_id: "", 
-            id: s.id+step_out, 
-            in:{"1": [n.i, i]}, 
-            out:{}, 
+          let no = {
+            i: step_out,
+            svg_id: "",
+            id: s.id+step_out,
+            in:{"1": [n.i, i]},
+            out:{},
             position: {x: 0, y:0} ,
             edges: []
           }
           let typing  = context[n.id].pfunction.gapi.outputs[i-1]
           // console.log(context[n.id].pfunction.gapi.outputs, i)
-          indexed_func[s.id+step_out]  = {"_id": s.id + step_out,"pclassid":"5c95397d4212cc40afeec914","pfunction":{"signature":"io", "source": "f=>f", "graph":{}, "gapi":{"constant":true,"inputs":[{"name":typing.name,"type": typing.type}],"name":"io","outputs":[{"name":"o","type": typing.type}],"payable":false,"stateMutability":"view","type":"function"},"chainids":["3"]},"tags":["Pipeline Demo Package","ethpm","pipeline","ethpm"],"timestamp":"2019-03-22T14:38:36.112Z", graph: {}}
+          indexed_func[s.id+step_out]  = {"_id": s.id + step_out,"pclassid":"5c95397d4212cc40afeec914","pfunction":{"signature":"io", "sources": {"javascript":"f=>f"}, "graph":{}, "gapi":{"constant":true,"inputs":[{"name":typing.name,"type": typing.type}],"name":"io","outputs":[{"name":"o","type": typing.type}],"payable":false,"stateMutability":"view","type":"function"},"chainids":["3"]},"categories":{"tags":["Pipeline Demo Package","ethpm","pipeline","ethpm"]},"timestamp":"2019-03-22T14:38:36.112Z", graph: {}}
           added_nodes[step_out]  = no
           added_edges.push([n.i, i, step_out, 1])
           n.out[""+i]= [[step_out, 1]]
@@ -1316,11 +1316,11 @@ function addNodesEdges(grf, context){
 
       for (let i = 1 ; i <=context[n.id].pfunction.gapi.inputs.length; i++){
         if (!(""+i in n.in) && n.id != s.id) {
-          let on = {edges: [], i: step_in, id: s.id +step_in, 
+          let on = {edges: [], i: step_in, id: s.id +step_in,
           in:{}, out:{"1":[[n.i, i]]}, position: {x: 0, y:0}, svg_id: ""}
           let typing  = context[n.id].pfunction.gapi.inputs[i-1]
           // console.log(context[n.id].pfunction.gapi.inputs, i)
-          indexed_func[s.id + step_in]  = {"_id": s.id +step_in,"pclassid":"5c95397d4212cc40afeec914","pfunction":{"signature":"io", "source": "f=>f","graph":{}, "gapi":{"constant":true,"inputs":[{"name": "i","type": typing.type}],"name":"io","outputs":[{"name":typing.name,"type": typing.type}],"payable":false,"stateMutability":"view","type":"function"},"chainids":["3"]},"tags":["Pipeline Demo Package","ethpm","pipeline","ethpm"],"timestamp":"2019-03-22T14:38:36.112Z", graph: {}}
+          indexed_func[s.id + step_in]  = {"_id": s.id +step_in,"pclassid":"5c95397d4212cc40afeec914","pfunction":{"signature":"io", "sources": {"javascript":"f=>f"},"graph":{}, "gapi":{"constant":true,"inputs":[{"name": "i","type": typing.type}],"name":"io","outputs":[{"name":typing.name,"type": typing.type}],"payable":false,"stateMutability":"view","type":"function"},"chainids":["3"]},"categories":{"tags":["Pipeline Demo Package","ethpm","pipeline","ethpm"]},"timestamp":"2019-03-22T14:38:36.112Z", graph: {}}
           added_nodes[step_in]  = on
           added_edges.push([step_in, 1, n.i, i])
           n.in[""+i] = [step_in, 1]
@@ -1340,7 +1340,7 @@ const enrich_graph = def ('enrich_graph') ({})
     let graph2 = JSON.parse(JSON.stringify(graph1))
 
     S.map (x => {
-      x.out = {}; 
+      x.out = {};
       x.in ={};
       x.position = {x: 0, y: 0};
       x.svg_id = "";
@@ -1350,10 +1350,10 @@ const enrich_graph = def ('enrich_graph') ({})
     addNodesEdges(graph2, context);
     // console.log("lllll",graph2)
     let visitors = [enrich];
-    
+
     let graph3 =  positionNodes(graph2, S.keys(graph2.n), ["0"], visitors, 0)
 
-    
+
     // console.log("graph3",graph3)
     graph2.init  = graph1
     return graph2
@@ -1385,7 +1385,7 @@ const make_runtime =  def ('make_runtime') ({})
     "context": context,
     "runtime": { "0": rich_graph2.r}
   }
-}); 
+});
 
 //let run_gr = make_runtime(graph) (indexed_func)
 //// console.log(run_gr)
@@ -1398,14 +1398,14 @@ const run_graph =  def ('run_graph') ({})
   let outs = [], ndx = 0, node
   let func, args, ans;
   let arr_ins = Object.values(ins)
-  
+
 
   let runtime = JSON.parse(JSON.stringify(runtime_graph.runtime))
   let runnable = JSON.parse(JSON.stringify(runtime_graph.runnable_graph))
   let rich = JSON.parse(JSON.stringify(runtime_graph.rich_graph))
-  
+
   //// console.log("gkkgg", arr_ins)
-  S.map (x => { 
+  S.map (x => {
     //console.log("in item gkkgg", x, ndx, arr_ins, arr_ins[ndx], ""+x)
     runtime[""+x] = [arr_ins[ndx]]
     //console.log("vvvv", JSON.parse(JSON.stringify(runtime)), runtime[""+x])
@@ -1421,10 +1421,10 @@ const run_graph =  def ('run_graph') ({})
     S.map (y => {
     node  = rich.n[""+y]
     let contxt = runtime_graph.context[node.id]
-    let source = contxt.pfunction.source
+    let source = contxt.pfunction.sources.javascript
     // console.log(runtime_graph, contxt, node.id, source, node)
-    
-    
+
+
     // console.log("gkkgg", runtime_graph.runtime)
     //deb  = runtime_graph
     let args=[]
@@ -1446,7 +1446,7 @@ const run_graph =  def ('run_graph') ({})
       args  = runtime[""+y]
     }
 
-    
+
     //console.log("argss", x, y,JSON.stringify(args), JSON.stringify(runtime))
 
     if (contxt.pfunction.gapi.type == "function") {
@@ -1465,14 +1465,14 @@ const run_graph =  def ('run_graph') ({})
           (func)
           (args)
         } else  {
-          // ans = func.apply(this, args);  
+          // ans = func.apply(this, args);
           ans = func.apply(this, args);
         }
 
 
-        
+
       }
-      
+
     } else {
       try {
         func = JSON.parse("["+source+"]")[0]
@@ -1481,9 +1481,9 @@ const run_graph =  def ('run_graph') ({})
       }
     }
 
-    
-    
-    
+
+
+
     // if ( contxt.pfunction.gapi.outputs.length <= 1) {
     //   ans = [ans]
     // }
@@ -1535,10 +1535,10 @@ const classes2  = ["5dbaa731f18ff7488e9b108b",  "5c95397d4212cc40afeec914"]
 //         // console.log("responsesss",response);
 // });
 
-axios.all( [getClass("5dbaa731f18ff7488e9b108b")]) // , getClass("5c95397d4212cc40afeec914") 
+axios.all( [getClass("5dbaa731f18ff7488e9b108b")]) // , getClass("5c95397d4212cc40afeec914")
   .then(function (responses) {
-    
-    let merged = {} 
+
+    let merged = {}
     responses.forEach( el  =>{
       el.data.map( fun  =>{
         merged[fun._id] = fun
@@ -1560,10 +1560,10 @@ function getFuncsFromGraph(gf) {
 function resolveDb(arrFunc){
   let arr =  arrFunc.filter(x=>!(x in indexed_func))
   //console.log(arr, indexed_func)
-  axios.all( arr.map(getFunc) ) // , getClass("5c95397d4212cc40afeec914") 
+  axios.all( arr.map(getFunc) ) // , getClass("5c95397d4212cc40afeec914")
     .then(function (responses) {
-      
-      let merged = {} 
+
+      let merged = {}
       responses.forEach( el  =>{
           merged[el.data._id] = el.data
           if (el.data.pfunction.graph != {}) {
@@ -1578,9 +1578,9 @@ function resolveDb(arrFunc){
       //   size: merged.length,
       //   children: indexed_func
       // }
-      
+
       // fillMenu2(menu2, "caruso", "breadcrumbs")
-      
+
       //doit()
 
   });
@@ -1589,7 +1589,7 @@ function resolveDb(arrFunc){
 function  dg(gi){
   s.graph = gi
   resolveDb(getFuncsFromGraph(gr[s.graph]))
-  
+
   setTimeout ( x=>{
     graph  = enrich_graph (indexed_func) (gr[s.graph])
     //doit2()
