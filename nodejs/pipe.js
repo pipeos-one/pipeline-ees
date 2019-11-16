@@ -1055,7 +1055,7 @@ const add_const = def ('add_const') ({})
 const add_edge = def ('add_edge') ({})
   ([pl["graph"], pl["edge"], pl["graph"]])
   (graph => edge => {
-    if (!(graph.n[edge[0]] && graph.n[edge[2]])) return graph;
+    //if (!(graph.n[edge[0]] && graph.n[edge[2]])) return graph;
     if (edge in graph.e) return graph;
     let graph2 = JSON.parse(JSON.stringify(graph))
     graph2.e.push(edge)
@@ -1131,8 +1131,8 @@ gr[0]= {
     1: { "i": 1, "id": "5dbbf356f18ff7488e9b1096"}
     // , 2: { "i": 2, "id": "5dbe11bb052a148d62eae283"}
   },
-  "e": [[0, 1, 1, 1]],
-  "r": ["h=>h*9"]
+  "e": [],
+  "r": []
 }
 
 // graph in graph

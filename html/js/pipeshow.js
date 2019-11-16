@@ -17,6 +17,7 @@ var colors = {
   address: SVG.Color.random("pastel"),
   bytes: SVG.Color.random("pastel"),
   bytes4: SVG.Color.random("pastel"),
+  "number[]": SVG.Color.random("pastel"),
   func: SVG.Color.random("pastel"),
   edge: SVG.Color.random("dark"),
   text: SVG.Color.random("dark"),
@@ -92,18 +93,20 @@ function doit(){
 
 function doit2(){
   draw.clear()
-  texts = draw.group()
+  draw2 = draw.group().attr({id: "gra1"})
+  texts = draw2.group()
+  //var panZoomTiger = svgPanZoom("#gra1")
 
 
   //graph  = run_gr
 
 
   //// console.log("graph", graph)
-  marker = draw.marker(xr/co, xr/co, function(add) {
+  marker = draw2.marker(xr/co, xr/co, function(add) {
     add.path("M0,0 L"+xr/co/2+","+xr/co/2+ " "+ 0+","+xr/co+" z").attr({"fill": colors["edge"],"stroke-linejoin":"round" ,"stroke-linecap":"round"}) // M100,50 L0,90 L30,50 L0,10 Z
   })
 
-  s1  = draw.defs().path([  // half-round
+  s1  = draw2.defs().path([  // half-round
     ["M", xr*2, xr],
     ["L", xr*2, xr*2],
     ["L", 0, xr*2],
@@ -135,7 +138,7 @@ function doit2(){
         // console.log(this, this.data("edge"))
         let t = remove_edge (graph.init) (this.data("edge"))
         // console.log(t)
-          graph = enrich_graph (t)
+          graph = enrich_graph (indexed_func)  (t)
           doit2()
       })
     }
@@ -184,6 +187,7 @@ function doit2(){
   const r = like (_.RecordType ({x: _.String, y: _.String})) (_.RecordType ({aa: _.Number, bbb: _.String}))
   //// console.log(r)
   //[failure, success];
+  texts.front()
 }
 
 //var xr = 10
@@ -261,7 +265,7 @@ function drawNode(n) {
   let yn = xr*8
   let anim = 100
 
-  var gr = draw.group()
+  var gr = draw2.group()
   var psi  = []
   var pso  = []
   var lsi = []
@@ -435,8 +439,14 @@ function drawNode(n) {
       // s.start  = null
 
     } else {
-      this.attr({"stroke-width": 2, "stroke":"#000"})
-      s.end = this
+      if (s.end) {
+        this.attr({"stroke-width": 0, "stroke":"#000"})
+        s.end  = false
+      } else {
+        this.attr({"stroke-width": 2, "stroke":"#000"})
+        s.end = this
+      }
+      
     }
   }
 
@@ -453,8 +463,14 @@ function drawNode(n) {
       // s.end  = null
 
     } else {
-      this.attr({"stroke-width": 2, "stroke":"#000"})
-      s.start = this
+      if (s.start) {
+        this.attr({"stroke-width": 0, "stroke":"#000"})
+        s.start  = false
+      } else {
+        this.attr({"stroke-width": 2, "stroke":"#000"})
+        s.start = this
+      }
+      
     }
   }
 
@@ -478,6 +494,11 @@ function drawNode(n) {
       ) // ,0,fs
       //// console.log(tx.transform())
       lsi.push(tx)
+      tx.data("key", [n.i, key2+1])
+      tx.data("type", node_info.inputs[key].type)
+      tx.data("name", node_info.inputs[key].name)
+      tx.on("touchstart", st1)
+      tx.on("click", st1)
     }
 
     s2.on("touchstart", st1)
@@ -502,6 +523,11 @@ function drawNode(n) {
         (( 0+key)*xn+n.position.x*xn+(n.position.y)*yn+xr*2+tx.length())/sq2
       )
       lso.push(tx)
+      tx.data("key", [n.i, key2+1])
+      tx.data("type", node_info.outputs[key].type)
+      tx.data("name", node_info.outputs[key].name)
+      tx.on("touchstart", st2)
+      tx.on("click", st2)
     }
     //s2.draggable()
 
@@ -565,7 +591,7 @@ function drawExactArrow(x1, y1, x2, y2){
   var midx = (x2+x1)/2
   var midy = (y2+y1)/2
   var color = SVG.Color.random("dark")
-  var all = draw.group()
+  var all = draw2.group()
   var line  =  all.path([
   ["M", x1, y1],
   ["C", x1, midy, midx, midy, midx, midy],
@@ -1151,8 +1177,8 @@ gr[0]= {
     1: { "i": 1, "id": "5dbbf356f18ff7488e9b1096"}
     // , 2: { "i": 2, "id": "5dbe11bb052a148d62eae283"}
   },
-  "e": [[0, 1, 1, 1]],
-  "r": ["h=>h*9"]
+  "e": [],
+  "r": []
 }
 
 // graph in graph
@@ -1174,6 +1200,8 @@ gr[2] = {
   "e": [],
   "r": []
 }
+
+
 
 //// console.log(S.is (pl["graph"]) (gr))
 
@@ -1546,6 +1574,26 @@ function getClass(classid) {
   return instance.get('/pfunction?filter={%22where%22:{%22pclassid%22:%22'+classid+'%22}}');
 }
 
+function getGraphById(id){
+  instance.get('/pfunction/'+id)
+    .then(function (responses) {
+      s.graph = 0
+      console.log(responses)
+      let func = responses.data.pfunction.graph
+      gr[0] = func
+      dg(0)
+
+    })
+
+}
+
+function  useGraph(gra){
+  s.graph = 0
+  gr[0] = gra
+  dg(0)
+}
+
+
 function getFunc(funcid) {
   return instance.get('/pfunction/'+funcid);
 }
@@ -1615,7 +1663,7 @@ function  dg(gi){
   setTimeout ( x=>{
     graph  = enrich_graph (indexed_func) (gr[s.graph])
     doit2()
-  }, 1000)
+  }, 2000)
 }
 
 //dg(0)
@@ -1643,13 +1691,6 @@ function resolveGraph(context, gra, ins){
 
 // -----------  from pipe.js  ---------- //
 
-gra= {
-  "n": {
-    1: { "i": 1, "id": "5dbbf356f18ff7488e9b1096"}
-    // , 2: { "i": 2, "id": "5dbe11bb052a148d62eae283"}
-  },
-  "e": [[0, 1, 1, 1]],
-  "r": ["h=>h*9"]
-}
+gra= {"n":{"101":{"i":101,"id":"5dcadd175427e54a5fe18e88"},"102":{"i":102,"id":"5dcac5c45427e54a5fe18e86"},"103":{"i":103,"id":"5dcfebb36a2b0f10e93b09cb"},"104":{"i":104,"id":"5dcfec8b6a2b0f10e93b09cc"},"105":{"i":105,"id":"5dcaf0cd5427e54a5fe18e8a"},"106":{"i":106,"id":"5dcaf0cd5427e54a5fe18e8a"},"107":{"i":107,"id":"5dbbf356f18ff7488e9b1096"},"108":{"i":108,"id":"5dbbf356f18ff7488e9b1096"},"109":{"i":109,"id":"5dcadd175427e54a5fe18e88"},"110":{"i":110,"id":"5dcac5c45427e54a5fe18e86"}},"e":[[101,1,102,1],[102,1,103,1],[103,1,104,1],[102,1,105,1],[104,1,105,3],[102,1,106,1],[104,1,106,2],[103,1,106,3],[105,1,107,2],[106,1,108,2],[107,1,109,1],[108,1,109,2],[109,1,110,1]],"r":[]}
 
-resolveGraph([], gra, {"a": [45,78]})
+resolveGraph([], gra, {"a": [3,5,88,9,10], "b": [5,8,12,45,30,100], "c":0, "d": "h=>h*2", "e":"h=>h*3"})

@@ -33,6 +33,7 @@ html,  body, main, #draw {
 
       <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/3.0.13/svg.min.js" integrity="sha256-lGl8w8KbUgg+8cFC38Erx5NRwynFuqFLvdwkdR9ggjM=" crossorigin="anonymous"></script>
       <!-- <script src="js/svg.draggable.js"></script> -->
+      <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.5.0/dist/svg-pan-zoom.min.js"></script>
 
       <script src="js/sanct/sanctuary-show/index.js"></script>
       <script src="js/sanct/sanctuary-type-identifiers/index.js"></script>
@@ -161,6 +162,7 @@ var s = settings  ={}
 s.start = null
 s.end  = null
 s.graph = 0
+var new_instances = 100
 
 //var dataOffcanvas
 function slideCanvas(){
@@ -345,6 +347,7 @@ function fillTop(){
     
 }
 
+var memo ={}
 function processGraph(){
     let ndx = 3000
     let args = {}
@@ -385,7 +388,14 @@ function processGraph(){
 
 
     // console.log("args",args)
-    let func =  make_runtime (indexed_func) (graph)
+    let func 
+    if (graph  in memo) {
+        func  = memo[graph]
+    } else  {
+        func  =  make_runtime (indexed_func) (graph)
+        memo[graph] = func
+    }
+    
     let ans = run_graph (func) (args)
     console.log("final_func",func,  args,ans)
 
@@ -393,7 +403,7 @@ function processGraph(){
 
     while ($('#out_'+ndx).length) {
         //// console.log("argst",temp)
-        $('#out_'+ndx).val(JSON.stringify(ans[""+(4000-ndx)]))
+        $('#out_'+ndx).val(JSON.stringify(ans[(ndx-4000)]))
         ndx++
     }
 
@@ -407,10 +417,10 @@ function add1Menu(){
         children: indexed_func
       }
 
-      fillMenu2(menu2, "caruso", "breadcrumbs")
+      fillMenu2(menu2, "caruso", "breadcrumbs", "fx1")
 }
 
-function fillMenu2(data, divId , divid2){
+function fillMenu2(data, divId , divid2, fnstr){
     let div = $("#"+divId)
     // console.log(data)
     let div2  = $("#"+divid2)
@@ -420,9 +430,9 @@ function fillMenu2(data, divId , divid2){
     for (element  in data.children) {
         // console.log(element)
         el = data.children[element]
-        m = m+'<li class="list-group-item justify-content-between align-items-center"><button type="button" data-slide="next"  onClick="fx1($(this).attr(\'data-id\'))" data-id="'+element+'"  role="button" class="btn" ><i class="fas fa fa-bars"></i></button><button type="button" data-slide="next"  onClick="fx2($(this).attr(\'data-id\'))" data-id="'+element+'"  role="button" class="btn" ><i class="fas fa fa-bars"></i></button> '+el.pfunction.signature
+        m = m+'<li class="list-group-item justify-content-between align-items-center"><button type="button" data-slide="next"  onClick="'+fnstr+'($(this).attr(\'data-id\'))" data-id="'+el._id+'"  role="button" class="btn" ><i class="fas fa fa-bars"></i></button><button type="button" data-slide="next"  onClick="fx2($(this).attr(\'data-id\'))" data-id="'+el._id+'"  role="button" class="btn" ><i class="fas fa fa-bars"></i></button> '+el.pfunction.signature
         if (el.children !== undefined)  {
-            m = m + '<button type="button" data-slide="next"  onClick="goTo($(this).attr(\'data-id\'))" data-id="'+element+'"  role="button" class="list-group-item-action d-flex  carousel-control-next" href="#carousel-example" > <span class="badge badge-primary badge-pill">'+el.children.length+'</span></button>'
+            m = m + '<button type="button" data-slide="next"  onClick="goTo($(this).attr(\'data-id\'))" data-id="'+el._id+'"  role="button" class="list-group-item-action d-flex  carousel-control-next" href="#carousel-example" > <span class="badge badge-primary badge-pill">'+el.children.length+'</span></button>'
         }
         m= m+' </li>'
         menus[element.name] = element
@@ -436,7 +446,7 @@ function fillMenu2(data, divId , divid2){
 
 function goTo(e){
     // console.log(menus[e])
-    fillMenu(menus[e], "caruso", "breadcrumbs")
+    fillMenu2(menus[e], "caruso", "breadcrumbs")
     $('.carousel').carousel({ interval: false }).carousel('next')
 }
 
@@ -458,6 +468,57 @@ function fx1(e){
 
 function fx2(e){
     // console.log("fx2: "+e)
+}
+
+function addByType(e){
+    //$( document ).trigger( "enhance" );
+    console.log(e)
+    visible  = false
+    new_instances++
+    let edge , type,  key, nod, port = 0
+    
+
+    if (s.end) {
+        type = s.end.data("type")
+        key = JSON.parse("["+s.end.data("key")+"]")
+        
+    }
+    if (s.start) {
+        type = s.start.data("type")
+        key = JSON.parse("["+s.start.data("key")+"]")
+    }
+    nod = indexed_func[e].pfunction.gapi
+    console.log(type, key, e, nod)
+    gr[s.graph] = add_node(graph.init) ({i: new_instances, id: e})
+
+    if (s.end) {
+        while (port < nod.outputs.length){
+            if (type  == nod.outputs[port].type) {
+                edge = [new_instances, port+1].concat(key)
+            }
+            port++
+        }
+    }
+    if (s.start) {
+        while (port < nod.inputs.length){
+            if (type  == nod.inputs[port].type) {
+                edge = key.concat([new_instances, port+1])
+            }
+            port++
+        }
+    }
+
+
+    console.log(edge,gr[s.graph])
+    //
+    gr[s.graph] = add_edge (gr[s.graph]) (edge)
+
+    console.log(gr[s.graph])
+    //return;
+    gr[s.graph] = enrich_graph (indexed_func) (gr[s.graph])
+    graph = gr[s.graph]
+    //run_gr = make_runtime (indexed_func) (graph)
+    doit2()
 }
 
 
@@ -490,8 +551,9 @@ function getTypes(io  , type){
         out = response.data
         console.log("response",out);
 
-        fillMenu({children: out}, "caruso", "breadcrumbs")
-        $("#carousel").carousel('next')
+        fillMenu2({children: out}, "caruso", "breadcrumbs", "addByType")
+        $(".carousel").carousel('next')
+        $(".carousel").carousel('next')
 
       })
       .catch(function (error) {
