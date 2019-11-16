@@ -72,8 +72,8 @@ html,  body, main, #draw {
     </div>
 
     <div class="form-group">
-        <label for="source">source</label>
-        <textarea class="form-control rounded-0" id="source" rows="3"></textarea>
+        <label for="sources">sources</label>
+        <textarea class="form-control rounded-0" id="sources" rows="3">{"javascript":"", "python": ""}</textarea>
     </div>
 
     <div class="form-group">
@@ -259,13 +259,13 @@ function insertFunc(){
   "pfunction":{
     "signature": sig,
     "gapi": JSON.parse($("#abi").val()),
-    "source": $("#source").val(),
-    "graph": JSON.parse($("#graph").val()),
-    "chainids":[]
+    "sources": JSON.parse($("#sources").val()),
+    "graph": JSON.parse($("#graph").val())
   },
-  "tags":[
-    "javascript"
-  ]
+  "categories":{
+    languages: ["javascript"]
+  }
+
 }
 
 axios.post('http://192.168.1.140:3001/pfunction', obj)
