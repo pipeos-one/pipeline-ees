@@ -1,0 +1,1308 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+ <!-- Font Awesome -->
+ <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+  
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #f0f0f0;
+    font-family: Roboto Condensed;
+  }
+  #editor  {
+    position:absolute;
+    background-color: transparent;
+    z-index: 10;
+    
+  }
+  
+  #codec {
+    overflow: scroll;
+  
+  }
+
+</style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="https://raw.githubusercontent.com/daneden/animate.css/master/animate.css">
+    <link rel="stylesheet" href="css/mdb.min.css">
+
+  
+
+    <link rel="stylesheet" href="css/js-offcanvas.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+      <script src="https://peterolson.github.io/BigInteger.js/BigInteger.min.js"></script>
+
+      <script src="https://d3js.org/d3.v5.min.js"></script>
+
+      <script src="js/sanct/sanctuary-show/index.js"></script>
+      <script src="js/sanct/sanctuary-type-identifiers/index.js"></script>
+      <script src="js/sanct/sanctuary-type-classes/index.js"></script>
+      <script src="js/sanct/sanctuary-either/index.js"></script>
+      <script src="js/sanct/sanctuary-maybe/index.js"></script>
+      <script src="js/sanct/sanctuary-pair/index.js"></script>
+      <script src="js/sanct/sanctuary-def/index.js"></script>
+      <script src="js/sanct/sanctuary/index.js"></script>
+      <script src="js/data.js"></script>
+     
+
+      
+
+    <title>Pipeline</title>
+
+</head>
+
+<body>
+<main class="c-offcanvas-content-wrap" role="main">
+  <div id="container"></div>
+  <div id="editor" style="top:0px;width: 0px; height: 0px; background-color:#ccc"><div id="title"></div><div id="codec"><div contenteditable="true" id="code"></div></div></div>
+
+    <div class="fixed-bottom justify-content-between d-flex">
+        <button class="js-offcanvas-trigger btn btn-primary" data-offcanvas-trigger="left" href="#left"><i class="fas fa fa-bars"></i></button>
+        <button class="js-offcanvas-trigger btn btn-primary" data-offcanvas-trigger="top" href="#top"><i class="fas fa fa-bars"></i></button>
+        <button class="js-offcanvas-trigger btn btn-primary" data-offcanvas-trigger="right" href="#right"><i class="fas fa fa-bars"></i></button></div>
+
+</main>
+
+
+<aside class="js-offcanvas" data-offcanvas-options='{"modifiers":"left, overlay"}' id="left" role="complementary">
+
+        <div id="carousel-example" class="carousel slide" data-interval="false" data-ride="carousel">
+            <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb" id="breadcrumbs">
+                                <li class="breadcrumb-item"><a href="#">Menu</a></li>
+                        </ol>
+            </nav>
+
+
+            <div class="carousel-inner row w-100 mx-auto" role="listbox" id="caruso">
+                <div class="carousel-item active">
+                            <ul class="list-group">
+                                    <li class="list-group-item justify-content-between align-items-center">
+                                    Add Node
+                                            <button type="button" data-slide="next" role="button" class="list-group-item-action d-flex  carousel-control-next" href="#carousel-example" > <span class="badge badge-primary badge-pill">14</span>
+                                    </button>
+                                    </li>
+
+            <li class="list-group-item justify-content-between align-items-center">
+                Find Node by Type
+                        <button type="button" id="bytype" role="button"  > ->
+                </button>
+            </li>
+
+                                    <li class="list-group-item justify-content-between align-items-center">
+                                        Set Constant
+                                    <button type="button" onclick="constFill()" role="button" >Go</button>
+                                            </li>
+                            </ul>
+                </div>
+            </div>
+
+        </div>
+    
+</aside>
+
+
+
+<aside class="js-offcanvas" data-offcanvas-options='{"modifiers":"top, overlay"}' id="top" role="complementary">
+        <form class="text-center" style="color: #757575;" action="#!">
+    <table class="justify-content-between container-fluid">
+            <tbody class="justify-content-between container-fluid">
+        <tr>
+        <td><ul class="list-group" id="run_in"></ul></td>
+        <td>&gt;</td>
+
+            <td valign="top"><ul class="list-group" id="run_out"></ul></td>
+        </tr>
+            </tbody>
+    </table>
+        </form>
+   
+</aside>
+
+
+<aside class="js-offcanvas" data-offcanvas-options='{"modifiers":"right, overlay"}' id="right" role="complementary">
+        <button type="button" onclick="save_graph()" role="button" >Save Graph as Function</button>
+    
+</aside>
+
+
+  
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script src="js/js-offcanvas.pkgd.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+    <script>
+
+var s = settings  ={}
+s.start = null
+s.end  = null
+s.graph = 0
+var new_instances = 1
+
+//var dataOffcanvas
+function slideCanvas(){
+    $( document ).bind( "beforecreate.offcanvas", function( e ){
+        var dataOffcanvas = $( e.target ).data('offcanvas-component');
+        // console.log(dataOffcanvas);
+        dataOffcanvas.onInit =  function() {
+            // console.log(this);
+        };
+    } );
+    $( document ).bind( "create.offcanvas", function( e ){
+        var dataOffcanvas = $( e.target ).data('offcanvas-component');
+        // console.log(dataOffcanvas);
+        dataOffcanvas.onOpen =  function() {
+            // console.log('Callback onOpen');
+        };
+        dataOffcanvas.onClose =  function() {
+            // console.log('Callback onClose');
+        };
+
+    } );
+    $( document ).bind( "clicked.offcanvas-trigger clicked.offcanvas", function( e ){
+        var dataBtnText = $( e.target ).text();
+        // console.log(e.type + '.' + e.namespace + ': ' + dataBtnText);
+    } );
+    $( document ).bind( "open.offcanvas", function( e ){
+        var dataOffcanvasID = $( e.target ).attr('id');
+        // console.log(e.type + ': #' + dataOffcanvasID);
+        if (dataOffcanvasID  == "top") fillTop()
+    } );
+    $( document ).bind( "resizing.offcanvas", function( e ){
+        var dataOffcanvasID = $( e.target ).attr('id');
+        // console.log(e.type + ': #' + dataOffcanvasID);
+    } );
+    $( document ).bind( "close.offcanvas", function( e ){
+        var dataOffcanvasID = $( e.target ).attr('id');
+        // console.log(e.type + ': #' + dataOffcanvasID);
+    } );
+    // $( '#right' ).bind( "create.offcanvas", function( e ){
+    //     var dataOffcanvas = $(this).data('offcanvas-component');
+    //     setTimeout(function(){
+    //         //dataOffcanvas.open();
+    //     }, 500);
+
+    // } );
+    $( document ).trigger( "enhance" );
+}
+
+slideCanvas()
+
+
+//$("#menu").hide()
+var visible =false;
+
+var menu= {
+    name: "Menu",
+    size: 45,
+    children: [
+        {
+            name: "fdggggfuuggg",
+            size: 13,
+            children: [
+                {
+                    name: "fdggguuiuyggg454",
+                    size: 13,
+                    children: [
+                {
+                    name: "fgghgggg454",
+                    size: 13
+                },
+                {
+                    name: "child2365",
+                    size:2
+                }
+            ]
+                },
+                {
+                    name: "child2365",
+                    size:2
+                }
+            ]
+        },
+        {
+            name: "child2",
+            size:2
+        }
+    ]
+}
+
+var menus = {}, new_instaces = 1
+
+function constFill(){
+    let m  = ""
+    ndx = 0
+    // console.log("constfill")
+
+    
+
+    S.map (element => {
+        //let port = indexed_func[nodes[ndx].id].pfunction.gapi.outputs[0]
+        m = m + '<div class="md-form"><input type="text" class="form-control" onchange="const1($(this).attr(\'data-id\'))" id="c_'+ndx+'" data-type="any" data-id="'+ndx+'" value="'+JSON.stringify(element)+'"><label for="c_'+ndx+'">Constant  '+ndx+'</label></div>'
+        ndx++
+    }) (graph.r); 
+
+    //m  = m + '<div class="md-form"><input type="text" class="form-control" onchange="const1($(this).attr(\'data-id\'))" id="c_'+ndx+'" data-type="any"  data-id="'+ndx+'" data-name="" value="'+JSON.stringify(element)+'"><label for="c_'+ndx+'">New Constant </label></div>'
+    // console.log("lhh",JSON.stringify(m))
+    //$("#caruso").html(m)
+
+
+}
+
+
+
+function save_graph(){
+    // console.log(graph)
+    var win = window.open("insertFunc.html?graph="+encodeURIComponent(JSON.stringify(graph.init)), '_blank');
+    win.focus();
+
+}
+
+function const1(ndx) {
+    let val 
+    try {
+        val = JSON.parse("["+$("#c_"+ndx).val()+"]")[0]
+    } catch (error) {
+        val = JSON.parse("[\""+$("#c_"+ndx).val()+"\"]")[0]
+    }
+    // console.log(val)
+    graph.init.r[ndx] = val
+    // console.log(s)
+    if (s.end)  {
+        graph.init.e.push( [0, 1+parseInt(ndx)].concat(s.end.data("key")))
+        // console.log(graph.init)
+        s.start  = s.end = null
+    }
+    gr   =  graph.init
+    doit2()
+}
+
+
+function fillTop(){
+    let m  ="", n=""
+    let nodes = graph.n
+    let ndx =  3000
+    while ( nodes[ndx] != undefined) {
+        // console.log(nodes[ndx].id, indexed_func[nodes[ndx].id])
+        let port = indexed_func[nodes[ndx].id].pfunction.gapi.outputs[0]
+        m = m + '<div class="md-form"><input type="text" class="form-control" onkeyup="processGraph()" id="in_'+ndx+'" data-type="'+port.type+'" data-name="'+port.name+'"><label for="in_'+ndx+'">'+port.name+": "+port.type+'</label></div>'
+        //m =  m+'<div class="md-form">  <input type="text" onkeyup="processGraph()" id="in_'+ndx+'" class="form-control validate" data-type="'+port.type+'" data-name="'+port.name+'"><label data-error="wrong" data-success="right" for="form32">'+port.name+": "+port.type+'</label> </div>'
+        ndx++
+    }
+
+    ndx = 0
+
+    S.map (element => {
+        let port  = 0
+        S.map (edge => {
+            console.log(edge, element)
+            if (edge[0] === 0 && ndx == edge[1]-1) {
+                
+                let port = indexed_func[nodes[edge[2]].id].pfunction.gapi.inputs[edge[3]-1]
+                console.log(edge, element, port,  indexed_func[nodes[edge[2]].id])
+                m = m + '<div class="md-form"><input type="text" class="form-control" onkeyup="processGraph()" id="r_'+ndx+'" data-type="'+port.type+'" data-name="'+port.name+'" value=\''+JSON.stringify(element).replace(/\"/g,"")+'\'><label for="r_'+ndx+'">Const: '+port.name+": "+port.type+'</label></div>'
+            }
+        })  (graph.e)
+        //let port = indexed_func[nodes[ndx].id].pfunction.gapi.outputs[0]
+        
+        ndx++
+    }) (graph.r); 
+
+    ndx = 4000
+    while ( nodes[ndx] != undefined) {
+        let port = indexed_func[nodes[ndx].id].pfunction.gapi.inputs[0]
+        n = n + '<div class="md-form"><input type="text"class="form-control"  id="out_'+ndx+'" data-type="'+port.type+'" data-name="'+port.name+'"><label for="out_'+ndx+'">'+port.name+": "+port.type+'</label></div>'
+        //n =  n+'<div class="md-form mb-5">  <input type="text" id="out_'+ndx+'" class="form-control validate"><label data-error="wrong" data-success="right" for="form32">'+port.name+": "+port.type+'</label> </div>'
+        ndx++
+    }
+    // console.log(m)
+
+    $("#run_in").html(m)
+    $("#run_out").html(n)
+    
+}
+
+var memo ={}
+function processGraph(){
+    let ndx = 3000
+    let args = {}
+    let temp = null
+    while ($('#in_'+ndx).val()) {
+        temp = $('#in_'+ndx).val()
+        temp = temp.replace("“", '"')
+        temp = temp.replace("“" , '"')
+        // console.log("argsss",temp)
+        
+        if ($('#in_'+ndx).attr("data-type") == "function") {
+            
+            temp =  new Function("return "+temp)();
+        } else {
+            temp = JSON.parse(temp)
+        }
+        //// console.log("lll",temp)
+        args[""+ndx] = temp
+        ndx++
+    }
+
+    ndx = 0 
+
+    while ($('#r_'+ndx).val()) {
+        temp = $('#r_'+ndx).val()
+        temp = temp.replace("“", '"')
+        temp = temp.replace("“" , '"')
+
+        try {
+            temp = JSON.parse("["+temp+"]")[0]
+        } catch (error) {
+            temp = JSON.parse("[\""+temp+"\"]")[0]
+        }
+
+        graph.r[ndx] = temp
+        ndx++
+    }
+
+
+    // console.log("args",args)
+    let func 
+    if (graph  in memo) {
+        func  = memo[graph]
+    } else  {
+        func  =  make_runtime (indexed_func) (graph)
+        memo[graph] = func
+    }
+    
+    let ans = run_graph (func) (args)
+    console.log("final_func",func,  args,ans)
+
+    ndx =4000
+
+    while ($('#out_'+ndx).length) {
+        //// console.log("argst",temp)
+        $('#out_'+ndx).val(JSON.stringify(ans[(ndx-4000)]))
+        ndx++
+    }
+
+    // console.log(ans)
+}
+
+function add1Menu(){
+    let menu2 = {
+        name: "Add Node",
+        size: indexed_func.length,
+        children: indexed_func
+      }
+
+      fillMenu2(menu2, "caruso", "breadcrumbs", "fx1")
+}
+
+function fillMenu2(data, divId , divid2, fnstr){
+    let div = $("#"+divId)
+    // console.log(data)
+    let div2  = $("#"+divid2)
+    div2.append('<li class="breadcrumb-item"><a href="#">'+data.name+'</a></li>')
+    let m  = "", el
+    m= m+'<div class="carousel-item"><ul class="list-group">'
+    for (element  in data.children) {
+        // console.log(element)
+        el = data.children[element]
+        m = m+'<li class="list-group-item justify-content-between align-items-center"><button type="button" data-slide="next"  onClick="'+fnstr+'($(this).attr(\'data-id\'))" data-id="'+el._id+'"  role="button" class="btn" ><i class="fas fa fa-bars"></i></button><button type="button" data-slide="next"  onClick="fx2($(this).attr(\'data-id\'))" data-id="'+el._id+'"  role="button" class="btn" ><i class="fas fa fa-bars"></i></button> '+el.pfunction.signature
+        if (el.children !== undefined)  {
+            m = m + '<button type="button" data-slide="next"  onClick="goTo($(this).attr(\'data-id\'))" data-id="'+el._id+'"  role="button" class="list-group-item-action d-flex  carousel-control-next" href="#carousel-example" > <span class="badge badge-primary badge-pill">'+el.children.length+'</span></button>'
+        }
+        m= m+' </li>'
+        menus[element.name] = element
+    };
+    m= m+ '</ul></div>'
+    div.append(m)
+    $('.carousel').carousel({ interval: false })//.carousel('refresh');
+}
+
+
+
+function goTo(e){
+    // console.log(menus[e])
+    fillMenu2(menus[e], "caruso", "breadcrumbs")
+    $('.carousel').carousel({ interval: false }).carousel('next')
+}
+
+function fx1(e){
+    console.log("fx1: "+e)
+
+    //$( document ).dispatchEvent(new Event("clicked.offcanvas"))
+    $( document ).trigger( "enhance" );
+    visible  = false
+    while (new_instaces in graph1.rich_graph.init.n){
+      new_instaces++
+    }
+    
+
+    gr[s.graph] = add_node(graph1.rich_graph.init) ({i: new_instaces, id: e})
+    gr[s.graph] = enrich_graph (indexed_func) (gr[s.graph])
+    graph = gr[s.graph]
+    run_gr = make_runtime (indexed_func) (graph)
+    dnodes=[]
+    graph1 = run_gr
+    drawGraph(graph1, trans)
+
+
+}
+
+function fx2(e){
+    // console.log("fx2: "+e)
+}
+
+function addByType(e){
+    //$( document ).trigger( "enhance" );
+    console.log(e)
+    visible  = false
+    new_instances++
+    let edge , type,  key, nod, port = 0
+    
+
+    if (s.end) {
+        type = s.end.data("type")
+        key = JSON.parse("["+s.end.data("key")+"]")
+        
+    }
+    if (s.start) {
+        type = s.start.data("type")
+        key = JSON.parse("["+s.start.data("key")+"]")
+    }
+    nod = indexed_func[e].pfunction.gapi
+    console.log(type, key, e, nod)
+    gr[s.graph] = add_node(graph.init) ({i: new_instances, id: e})
+
+    if (s.end) {
+        while (port < nod.outputs.length){
+            if (type  == nod.outputs[port].type) {
+                edge = [new_instances, port+1].concat(key)
+            }
+            port++
+        }
+    }
+    if (s.start) {
+        while (port < nod.inputs.length){
+            if (type  == nod.inputs[port].type) {
+                edge = key.concat([new_instances, port+1])
+            }
+            port++
+        }
+    }
+
+
+    console.log(edge,gr[s.graph])
+    //
+    gr[s.graph] = add_edge (gr[s.graph]) (edge)
+
+    console.log(gr[s.graph])
+    //return;
+    gr[s.graph] = enrich_graph (indexed_func) (gr[s.graph])
+    graph = gr[s.graph]
+    run_gr = make_runtime (indexed_func) (graph)
+    //doit2()
+    drawGraph(graph1, {x:1,y:6, l:0, f:1.00})
+}
+
+
+function bytype() {
+    let io = false, type
+    if (s.start) {
+        io = "inputs"
+        type = s.start.data("type")
+    }
+    
+    if (s.end) {
+        io = "outputs"
+        type = s.end.data("type")
+    }
+
+    if (io) {
+        getTypes(io  , type)
+    }
+
+}
+
+$("#bytype").click(bytype)
+
+function getTypes(io  , type){
+    let req = "/pfunction?filter={%22where%22:{%22pfunction.gapi."+io+".type%22:%22"+type+"%22}}"
+    console.log(req)
+    instance.get(req)
+      .then(function (response) {
+        // console.log("response",response);
+        out = response.data
+        console.log("response",out);
+
+        fillMenu2({children: out}, "caruso", "breadcrumbs", "addByType")
+        $(".carousel").carousel('next')
+        $(".carousel").carousel('next')
+
+      })
+      .catch(function (error) {
+        // console.log(error);
+      });
+
+}
+
+$("#b_menu").click( x => { 
+    if (visible) {
+        $("#menu").hide()
+        visible  = false
+    } else {
+        $("#menu").show()
+        visible   =true
+    }
+});
+
+$("#b_menu1").click( x => { 
+    $(".mobile_menu").simpleMobileMenu({
+            onMenuLoad: function(menu) {
+                // console.log(menu)
+                // console.log("menu loaded")
+            },
+            onMenuToggle: function(menu, opened) {
+                // console.log(opened)
+            },
+            "menuStyle": "slide"
+        });
+});
+
+
+
+var width = window.innerWidth;
+var height = window.innerHeight;
+var expand = 0.4
+var trans
+var marginw = width/30
+
+
+window.addEventListener('resize', function() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas = d3.select('canvas')  .attr('width', width)  .attr('height', height).call(d3.drag().on("start", dragstart).on("drag", dragging).on("end", dragend))
+    console.log("resize")
+    //alert("resize "+width+" "+height)
+    drawGraph(graph1, trans)
+});
+
+var emits=[], recives = [], dnodes=[], ports ={}, dedges=[]
+var marginh = 0, scale=1
+
+const xr2=10
+const  xr  =10, co=.5, x2=10
+
+//const context = DOM.context2d(width, height);
+var canvas = d3.select('#container')  .append('canvas')  .attr('width', width)  .attr('height', height) // .call(d3.zoom().scaleExtent([.1, 15]).on("start", zoomstart).on("zoom", zoom))
+
+canvas.call(d3.drag().on("start", dragstart).on("drag", dragging).on("end", dragend))
+//canvas.call(d3.zoom().scaleExtent([.1, 15]).on("zoom", zoom))
+
+var drag = d3.drag(), todel = false;
+var dstart = false, drg, edgeset = false, trans
+
+function zoomstart(){
+
+}
+
+function delClicked(mouse){
+  let least =400
+  if (todel){
+    dx = mouse[0] - todel.x;
+    dy = mouse[1] - todel.y;
+    d2 = dx * dx + dy * dy;
+    if (d2 <least) {
+      let t = remove_node (graph1.rich_graph.init) (todel.i)
+      graph = enrich_graph (indexed_func) (t)
+      run_gr = make_runtime (indexed_func) (graph)
+      graph1 = run_gr
+      dnodes=[]
+      
+      return drawGraph(graph1, {x:  0, y: 0, l: 0, f:0.00})
+    }
+  }
+  return false
+
+}
+
+function edgeClicked(mouse){
+  let least =Infinity,dx,dy,d2,limit=300
+
+  for (let n in dedges){
+        //let mouse = d3.mouse(this);
+        if ( "x"  in dedges[n]){
+          dx = mouse[0] - dedges[n].x;
+          dy = mouse[1] - dedges[n].y;
+          d2 = dx * dx + dy * dy;
+          if (d2 <least) {
+            least = d2
+            temp =  dedges[n]
+          }
+        }
+          
+      }
+      console.log("edge!",temp,least)
+    if (least <limit) {
+      let t = remove_edge (graph1.rich_graph.init) (temp.e)
+      graph = enrich_graph (indexed_func) (t)
+      run_gr = make_runtime (indexed_func) (graph)
+      graph1 = run_gr
+      dedges=[]
+      
+      return drawGraph(graph1, {x:  0, y: 0, l: 0, f:0.00})
+    }
+    return false
+
+  }
+  
+
+
+function nodeClicked(mouse){
+  console.log("dn",dnodes)
+      let least = Infinity
+      let em,dx,dy,d2,s2 = 600,temp
+      for (let n in dnodes){
+        //let mouse = d3.mouse(this);
+        if ( "x"  in dnodes[n]){
+          dx = mouse[0] - dnodes[n].x;
+          dy = mouse[1] - dnodes[n].y;
+          d2 = dx * dx + dy * dy;
+          if (d2 <least) {
+            least = d2
+            temp =  dnodes[n]
+          }
+        }
+          
+      }
+
+      if  (least < s2) {
+        //console.log(d2, dx,dy, s2, dnodes[n])
+        let obj = JSON.parse(JSON.stringify(temp))
+        dnodes=[]
+        //console.log(d3.easeCubicOut(0.5))
+        drawGraph(graph1, {x:  obj.xi, y: obj.yi, l: obj.li, f:1})
+        //for (let i =  0; i <= 1; i = i+ 1/100){ }
+        return true
+        
+      } else {
+        //dnodes=[]
+        //drawGraph(graph1, {x:  0, y: 0, l: 0, f:0.00})
+        return false
+      }
+}
+
+function  dragstart(e){
+    let mouse = d3.mouse(this);
+    console.log("draag",  dstart)
+    //zoom() drawExactArrow(x1, y1, x2, y2)
+    //context.save()
+
+    let em,dx,dy,d2,s2 = 600,temp
+
+      for (em in emits){
+        dx = mouse[0] - emits[em].x;
+        dy = mouse[1] - emits[em].y;
+        d2 = dx * dx + dy * dy;
+        console.log(d2, dx,dy, s2, emits[em])
+        if (d2 < s2) {
+            dstart  = emits[em];
+        } 
+      }
+
+      if (!delClicked(mouse))  {
+        if (!nodeClicked(mouse)) {
+          edgeClicked(mouse)
+        }
+            
+      }
+      
+    
+
+
+
+    //console.log("kkk",temp, least)
+    
+
+
+
+    
+}
+
+function dragging(e){
+    drg = d3.mouse(this);
+    //context.restore()
+    drawGraph(graph1, trans)
+    if (dstart)  {
+        let nearest = nearestf()
+        if (nearest){
+            drawExactArrow(dstart.x, dstart.y, nearest.x, nearest.y)
+            edgeset = nearest
+        } else {
+            console.log(nearest)
+            drawExactArrow(dstart.x, dstart.y, drg[0], drg[1])
+            edgeset = false
+        }
+        
+    }
+    
+}
+
+function  dragend(e){
+    if (dstart  &&  edgeset){
+    console.log("edgeset", edgeset,dstart)
+
+    let t = add_edge (graph1.rich_graph.init) ([dstart.i, dstart.key+1].concat([edgeset.i, edgeset.key+1]))
+
+    graph = enrich_graph (indexed_func) (t)
+    run_gr = make_runtime (indexed_func) (graph)
+    graph1 = run_gr
+
+    }
+
+
+
+    dstart = false
+    dnodes=[]
+    
+    drawGraph(graph1, trans)
+
+
+
+    
+}
+
+function roundRect(x, y, w, h,transform, matrix) {
+  //let marginw = width/30
+  
+  //let marginh = height/20
+  // let stepw = (width-2*marginw)/(matrix[1]+0)
+  // let steph = (height-2*marginh)/(matrix[0]-1)
+
+  //console.log(matrix, stepw,steph, w/stepw, w, w/2,h)
+  //y = y-h/2
+  context.save()
+
+  let r = 10*scale
+  if (w < 2 * r) r = w / 2;
+  if (h < 2 * r) r = h / 2;
+  context.beginPath();
+  context.moveTo(x+r-w/2, y-h/2);
+  context.arcTo(x+w/2, y-h/2,  x+w/2, y+h/2, r);
+  context.arcTo(x+w/2, y+h/2, x-w/2,   y+h/2, r);
+  context.arcTo(x-w/2,   y+h/2, x-w/2,   y-h/2,   r);
+  context.arcTo(x-w/2,   y-h/2,   x+w/2, y-h/2,   r);
+  context.closePath();
+  context.restore()
+  //return this;
+}
+
+
+function dist( xy, vec){
+    let dx,dy,d2
+    dx = xy.x - vec[0]
+    dy = xy.y -  vec[1]
+    d2 = dx*dx +dy*dy
+    return d2
+}
+
+function  nearestf(){
+    let nearest = false, dx,dy,d2,d1, acc
+    for (rec in recives){
+        if (dstart.type == recives[rec].type) {
+            acc = nearest? nearest : recives[rec]
+            
+            d1 = dist(acc, drg)
+            d2 = dist(recives[rec], drg)
+            console.log(d1,d2)
+            if (d1 >= d2) {
+                if (d2 < 10000){
+                    nearest = recives[rec]
+                } else {
+                    nearest = false
+                    console.log(d2)
+                }
+                
+            }
+        }
+    }
+    return nearest
+}
+
+
+//const canvas = context.canvas;
+var context = canvas.node().getContext('2d');
+//var drag = d3.drag();
+//context.clearRect(0, 0, width, height);
+
+function zoom() {
+  var transform = d3.event.transform;
+  context.save();
+  context.clearRect(0, 0, width, height);
+  context.translate(transform.x, transform.y);
+  context.scale(transform.k, transform.k);
+  drawGraph(graph1, transform)
+  context.restore();
+}
+
+//var rect = canvas.getBoundingClientRect();
+
+// function onDrag() {
+//     d3.event.subject.fx = ((d3.event.sourceEvent.pageX - rect.left) - translation[0]) / scale;
+//     d3.event.subject.fy = ((d3.event.sourceEvent.pageY - rect.top) - translation[1]) / scale;
+
+//     console.log("here")
+// }
+
+
+var draw1 = function(ctx, x, y, scale, fill) {
+ctx.save();
+ctx.fillStyle = fill;
+ctx.strokeStyle = "#000000";
+ctx.lineWidth = 0;
+ctx.lineJoin = "round";
+ctx.beginPath();
+ctx.moveTo(10*scale+x,y);
+ctx.lineTo(10*scale+x,y-10*scale);
+ctx.lineTo(x-10*scale,y-10*scale);
+ctx.lineTo(x-10*scale,y);
+ctx.bezierCurveTo(x-10*scale,5*scale+y,x-5*scale,10*scale+y,x,10*scale+y);
+ctx.bezierCurveTo(5*scale+x,10*scale+y,10*scale+x,5*scale+y,10*scale+x,y);
+ctx.closePath();
+ctx.fill();
+//ctx.stroke();
+ctx.restore();
+};
+
+var draw2 = function(ctx, x, y, scale, fill) {
+ctx.save();
+ctx.fillStyle = fill;
+ctx.strokeStyle = "#000000";
+ctx.lineWidth = 0;
+ctx.lineJoin = "round";
+ctx.beginPath();
+ctx.moveTo(10*scale+x,y);
+ctx.lineTo(10*scale+x,10*scale+y);
+ctx.lineTo(x-10*scale,10*scale+y);
+ctx.lineTo(x-10*scale,y);
+ctx.bezierCurveTo(x-10*scale,y-5*scale,x-5*scale,y-10*scale,x,y-10*scale);
+ctx.bezierCurveTo(5*scale+x,y-10*scale,10*scale+x,y-5*scale,10*scale+x,y);
+ctx.closePath();
+ctx.fill();
+//ctx.stroke();
+ctx.restore();
+};
+
+
+
+function drawGraph(graph, transform){
+  trans = transform
+  todel =false
+  ports ={}
+  let ed = document.getElementById("editor")
+      ed.setAttribute("style","display:none;")
+  //draw1(context, 145, 300, 10)
+  //draw2(context, 145, 100,  10)
+  //return
+    emits=[]
+    recives = []
+    context.clearRect(0, 0, width, height);
+    //transform.f = 1.00
+
+    let runnable   =  graph.runnable_graph
+    let rows = runnable.length, pos  = [0,0]
+    let cols = 0, max, j, tranl=0
+    for (nodes in runnable){
+      for (i in runnable[nodes]) {
+        j = runnable[nodes][i]
+        node = graph.rich_graph.n[j]
+        ctxnode = graph.context[node.id]
+        //console.log(nodes,i)
+        
+        max = Math.max(ctxnode.pfunction.gapi.inputs.length, ctxnode.pfunction.gapi.outputs.length)
+        if (transform.y !=0 && transform.x == i && transform.y == nodes) {
+          transform.l = max
+          transform.i =  j
+          //console.log(nodes,i,  max)
+          pos = [graph.rich_graph.n[j].position.x, graph.rich_graph.n[j].position.y, max]
+          
+        }
+        cols = cols > max + graph.rich_graph.n[j].position.x ? cols : max + graph.rich_graph.n[j].position.x
+        
+      }
+
+    }
+    let boxn = {top: 0, bottom: 0, left: 0, right: 0}
+    if (transform.y !==0 ) {
+      boxn  = box(pos[0], pos[1], pos[2], [rows, cols])
+    }
+    
+    //console.log("jhhhh",boxn)
+    let edge
+    //console.log("jhhhh",graph, runnable)
+    for  (key in runnable){
+        for (key1 in runnable[key]){
+            //console.log("jhhhh",graph,runnable[key][key1])
+            drawNode( graph, runnable[key][key1], transform, [rows, cols],[key, key1],boxn)
+            
+        }
+    }
+    //console.log(ports)
+    for (key in graph.rich_graph.e){
+        e = graph.rich_graph.e[key]
+
+            let source = ports[[e[0],e[1],1]]
+            let target = ports[[e[2],e[3],0]]
+            drawExactArrow(source.x,source.y, target.x,  target.y, target.type, scale)
+            dedges.push({x: (source.x+target.x)/2, y: (source.y+target.y)/2, e: e})
+
+        //let p1 = graph.rich_graph.n[edge[0]].position
+    //let p2  = graph.rich_graph.n[edge[2]].position
+    //// console.log(fx, p1, p2)
+    //let arrow = drawEdge(p1.x+(edge[1]-1), p1.y, p2.x+(edge[3]-1), p2.y, transform,[rows, cols])
+
+    }
+}
+
+function box(x, y, l, matrix){
+  //console.log(x,y,l)
+  let pad = 10
+  let stepw = (width-2*marginw - width*expand)/(matrix[1])
+  let steph = (height-2*marginh - height*expand)/(matrix[0]-1)
+  
+  x = 2*x*stepw+marginw+ width*expand/2
+  y  = (y)*steph+marginh + height*expand/2
+      // if (x  < width*expand/2) {
+      //   x = width*expand/2+pad
+      // }
+      if (x  > 3*width*expand/2 ) {
+        x = 3*width*expand/2 - pad
+      }
+      // if (y  < height*expand/2+(y-1)/steph*10) {
+      //   y = height*expand/2+((y-1)/steph-1)*10 + pad
+      // }
+      // if (y > 3*height*expand/2 - 10){ // -(matrix[1]-y)/steph*20-10 ){
+      //   y = 3*height*expand/2 - pad// -(matrix[1]-y)/steph*20-10
+      // }
+      //console.log(x, width/4,(x+matrix[2]/2))
+      //console.log(x,y,l)
+      let w = width*expand*trans.f+(1-trans.f)*l*(width-2*marginw)/(matrix[1])
+      let h =  height*expand*trans.f+(1-trans.f)*20
+      let b =  {top: y-h/2, bottom: y+h/2, left: x-w/2, right: x+w/2}
+      return  b;
+}
+
+
+
+function drawNode( graph, i, transform, matrix, ndx, boxn){
+  scale   = (2-trans.f)/2
+  if (transform.y !== 0){
+    scale = (2-trans.f)/2
+  }
+
+  //let marginw = width/30
+  
+  //let marginh = height/20
+  let stepw = (width-2*marginw)/(matrix[1]+0)
+  let steph = (height-2*marginh)/(matrix[0]-1)
+  //console.log(transform,i)
+  let node = graph.rich_graph.n[i]
+    let ctxnode = graph.context[node.id]
+    //console.log(node,ctxnode)
+    let max = Math.max(ctxnode.pfunction.gapi.inputs.length, ctxnode.pfunction.gapi.outputs.length)
+    let x =  marginw+node.position.x*stepw
+  let y = marginh+node.position.y*steph
+  let l = max*stepw
+  let boxp=[0,0];
+  let node_info =  ctxnode.pfunction.gapi
+
+  if (ctxnode.pclassid != "5c95397d4212cc40afeec914"){
+    //x  =  x+ l/2
+    if (transform.i == i){
+
+      //console.log("boxn",boxn)
+      x = (boxn.left + boxn.right)/2
+      y   = (boxn.top + boxn.bottom)/2
+      context.fillStyle= "rgba(30, 30, 30, 0.5)";
+      roundRect( x, y, boxn.right-boxn.left, boxn.bottom - boxn.top, transform, matrix)
+      context.fill()
+      scale = (2-trans.f)/2
+      drawDelete(context, boxn.right+3,  boxn.top-3)
+      todel = {x: boxn.right+3, y: boxn.top-3, i:i}
+      boxp = [boxn.right-boxn.left, boxn.bottom - boxn.top]
+    } else {
+      x = x+ l/2*scale
+      if (transform.y !== 0 ) {
+        //console.log(graph, i,ndx, matrix,transform)
+        if (x < (boxn.left + boxn.right)/2 && ndx[0] == transform.y){
+          x = boxn.left/2 
+          y = (boxn.top + boxn.bottom)/2
+        }
+        if (x > (boxn.left + boxn.right)/2 && ndx[0] == transform.y){
+          x = (width+boxn.right)/2
+          y = (boxn.top + boxn.bottom)/2
+        }
+        if (parseInt(ndx[0]) < parseInt(transform.y)){
+          y = boxn.top*parseInt(ndx[0])/(parseInt(transform.y))
+        }
+        if (parseInt(ndx[0]) > parseInt(transform.y)){
+          y = boxn.bottom+(height-boxn.bottom)*(parseInt(ndx[0])-parseInt(transform.y))/(matrix[0]-parseInt(transform.y)-1)
+        }
+        scale = (2-trans.f)/2
+      }
+      
+      boxp = [max*stepw*scale, 20*scale]
+      roundRect(x, y,boxp[0], boxp[1], transform, matrix)
+      
+    }
+    let o  = {i:i,x:x,y:y, xi: ndx[1], yi: ndx[0], li: max, ni:ndx}
+    //console.log(o)
+    dnodes.push(o)
+    
+    context.fillStyle= "rgba(30, 30, 30, 0.5)";
+    //context.fillOpacity = 0.5
+    context.fill()
+
+    if (transform.i == i){
+      let ed = document.getElementById("editor")
+      ed.setAttribute("style","display:block;width: "+parseInt(width*expand)+"px;  height:"+ parseInt(height*expand)+"px;top:"+parseInt(boxn.top)+"px;left:"+parseInt(boxn.left)+"px")
+      let title = document.getElementById("title")
+      title.innerHTML = ctxnode.pclassid + ": "+ctxnode.pfunction.gapi.name
+      let code  = document.getElementById("code")
+      //console.log(ctxnode.pfunction.sources)
+      code.innerHTML = ctxnode.pfunction.sources.javascript
+      let codec  = document.getElementById("codec")
+      codec.setAttribute("style","height: "+(parseInt(height*expand)-14)+"px")
+
+    }  else {
+      context.textAlign = "center";
+      context.font = (18*scale-9)+"px Roboto Condensed"
+      //context.lineJoin = "round";
+      context.fillStyle = "#000000"
+      context.fillText(shorten(ctxnode.pclassid,max*stepw+2), x, y-2 );
+      context.font = (12*scale+4)+"px Roboto Condensed"
+      context.fillText(shorten(ctxnode.pfunction.gapi.name,max*stepw+4), x, y+13-5/scale );
+
+    }
+
+    
+  }
+
+  if (parseInt(i) < 3000 || parseInt(i) > 3900) {
+    for (let key in node_info.inputs) {
+        drawPort(i,x,parseInt(key), y,node_info.inputs[key], [stepw,steph],scale,boxp)
+    }
+  }
+  
+  if (parseInt(i) < 3000|| parseInt(i) < 3900) {
+    for (let key in node_info.outputs) {
+        drawPort2(i,x, parseInt(key), y, node_info.outputs[key], [stepw,steph],scale,boxp)
+    }
+  }
+  
+}
+
+function shorten(txt, noChar){
+  let len = txt.length
+  if ( len < noChar) return txt;
+  let half = Math.floor(noChar/2)
+  //// console.log(len,half)
+  let ans = txt.slice(0, half)+ ".." +txt.slice(-half)
+  return ans
+
+}
+
+function drawPort(i,x,key, y, obj,  step, scale, boxp){
+  //let marginw = width/30
+  x= x+key*step[0]*scale+marginw*scale-boxp[0]/2+7*xr*scale
+  y = y-boxp[1]/2
+  let marginh = 0
+    //x= (x+1/2)*step[0]+marginw 
+    //y = y*step[1]+marginh-20
+    recives.push({type: obj.type, x: x, y: y, i: i, key: key})
+  fill =  colors[obj.type]? colors[obj.type] : "#aaaaaa"
+  draw2(context, x, y, scale, fill)
+  ports[[i,key+1,0]]  = {x:x, y: y,  type: obj.type}
+
+  context.save();
+  context.translate( x, y);
+  context.rotate( -Math.PI / 4 );
+ 
+  // specify the font and colour of the text
+  context.font = (8/1+4)+"px Roboto Condensed";
+  context.fillStyle = "#aaaaaa";; // red
+  
+  // set alignment of text at writing point (left-align)
+  context.textAlign = "left";
+  
+  // write the text
+  context.fillText( obj.name, 0,0 );
+
+  context.restore();
+
+}
+
+function drawPort2(i,x,key, y, obj, step, scale, boxp){
+  //let marginw = width/30
+  x= x+key*step[0]*scale+marginw*scale-boxp[0]/2+7*xr*scale
+  y = y+boxp[1]/2
+  let marginh = 0
+    //x= x+key*step[0]+marginw 
+    //y = y*step[1]+marginh+10
+    emits.push({type: obj.type, x: x, y: y, i: i, key: key})
+  fill =  colors[obj.type]? colors[obj.type] : "#aaaaaa"
+  draw1(context, x, y, scale, fill)
+  ports[[i,key+1,1]]  = {x:x, y: y,  type: obj.type}
+
+  context.save();
+  context.translate( x+xr, y+xr );
+  context.rotate( -Math.PI / 4 );
+ 
+  // specify the font and colour of the text
+  context.font = (8/1+4)+"px Roboto Condensed";
+  context.fillStyle = "#aaaaaa"; // red
+  
+  // set alignment of text at writing point (left-align)
+  context.textAlign = "right";
+  
+  // write the text
+  context.fillText( obj.name, 0,0 );
+
+  context.restore();
+
+}
+
+// function TdrawExactArrow(x1, y1, x2, y2){
+    
+//     context.save()
+//     drawExactArrow(x1, y1, x2, y2)
+// }
+
+function drawExactArrow(x1, y1, x2, y2, type, scale){
+    var midx = (x2+x1)/2
+    var midy = (y2+y1)/2
+    //var color = 0xA0A0A0
+    let srt  = "M"+x1+","+y1+"C"+x1+"," +midy+"," +
+    midx+","+ midy+","+ midx+","+ midy+
+    "C"+midx+"," +midy+","+ x2+","+ midy+"," +x2+","+ y2
+    //let scale = 1
+    //context.moveTo(x1, y1)
+    context.lineCap = "round"
+    context.strokeStyle  =  colors[type]? colors[type] : "#aaaaaa"
+    context.lineWidth = 2*scale;
+    context.stroke(new Path2D(srt));
+    context.closePath();
+    //context.moveTo(midx, midy)
+    context.beginPath()
+    context.arc(midx, midy, 3, 0, Math.PI*2, false);
+    context.fillStyle = '#DDAAAA';
+    context.fill();
+    context.closePath();
+
+}
+
+function drawEdge(x1, y1, x2, y2, transform, matrix){
+  //let marginw = width/30
+  //let marginh = height/20
+  let stepw = (width*(1-2/30))/(matrix[1]+0)
+  let steph = height/(matrix[0]-1)
+  //let {x1, y1, x2, y2} = edge
+  //console.log(x1, y1, x2, y2, stepw, steph)
+  let arr  = drawExactArrow((x1+0.5)*stepw+3*xr, y1*steph+xr*2, (x2+0.5)*stepw+3*xr, y2*steph-xr*2, transform)
+
+  return arr
+}
+
+var draw3 = function(ctx) {
+  ctx.save();
+  ctx.fillStyle = "#999999";
+  ctx.lineWidth = 1;
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  ctx.moveTo(13.23,0);
+  ctx.bezierCurveTo(13.23,7.3,7.3,13.23,0,13.23);
+  ctx.bezierCurveTo(-7.3,13.23,-13.23,7.3,-13.23,0);
+  ctx.bezierCurveTo(-13.23,-7.3,0,-19,0,-26.33);
+  ctx.bezierCurveTo(0,-19,13.23,-7.3,13.23,0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+};
+
+var drawDelete  = function(ctx,  x, y) {
+  ctx.save();
+  let srt  = "m"+(x+1.87)+","+(y-3.74177)+"l-1.87089,1.87088l-1.87089,-1.87088l-1.87088,1.87088l1.87088,1.87089l-1.87088,1.87089l1.87088,1.87088l1.87089,-1.87088l1.87089,1.87088l1.87088,-1.87088l-1.87088,-1.87089l1.87088,-1.87089l-1.87088,-1.87088z"
+  ctx.beginPath()
+  ctx.fill(new Path2D(srt));
+  ctx.closePath();
+  ctx.restore();
+}
+
+var drawDel = function(ctx) {
+ctx.save();
+ctx.fillStyle = "#000000";
+ctx.lineWidth = 0;
+ctx.lineJoin = "round";
+ctx.beginPath();
+ctx.moveTo(1.87,-3.74);
+ctx.lineTo(0,-1.87);
+ctx.lineTo(-1.87,-3.74);
+ctx.lineTo(-3.74,-1.87);
+ctx.lineTo(-1.87,0);
+ctx.lineTo(-3.74,1.87);
+ctx.lineTo(-1.87,3.74);
+ctx.lineTo(2.220446049250313e-16,1.87);
+ctx.lineTo(1.8708900000000002,3.74);
+ctx.lineTo(3.7417700000000003,1.87);
+ctx.lineTo(1.87,2.220446049250313e-16);
+ctx.lineTo(3.74,-1.87);
+ctx.lineTo(1.87,-3.74);
+ctx.closePath();
+ctx.fill();
+ctx.stroke();
+ctx.restore();
+};
+
+var graph1
+
+
+
+</script>
+
+<script src="js/pipeshow3.js"></script>
+
+<script>
+  WebFont.load({
+    google: {
+      families: ['Roboto Condensed']
+    },
+    active:e=>{
+        console.log("font loaded!");
+        // now start setting up your PixiJS (or canvas) stuff!
+        //gr[s.graph] = enrich_graph (indexed_func) (gr[s.graph])
+        //graph = gr[s.graph]
+        //run_gr = make_runtime (indexed_func) (graph)
+        //console.log("run_gr",run_gr)
+        //graph1 = run_gr
+        //drawGraph(run_gr, {x:1,y:6, l:0, f:1.00})
+        }
+  });
+</script>
+</body>
+
+</html>
