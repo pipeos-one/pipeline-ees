@@ -734,6 +734,8 @@ sol["array"] = _.Array;
 sol["function"] = _.AnyFunction;
 sol["number[]"] = _.Array (sol["number"]);
 sol["string[]"] = _.Array(sol["string"]);
+sol["object"] = _.Object;
+sol["object[]"] = _.Array (sol["object"]);
 
 //    env :: Array Type
 const env = _.env;

@@ -733,6 +733,8 @@ sol["array"] = _.Array;
 sol["function"] = _.AnyFunction;
 sol["number[]"] = _.Array (sol["number"]);
 sol["string[]"] = _.Array(sol["string"]);
+sol["object"] = _.Object;
+sol["object[]"] = _.Array (sol["object"]);
 
 //    env :: Array Type
 const env = _.env;
@@ -1661,7 +1663,13 @@ function  dg(gi){
 
   setTimeout ( x=>{
     graph  = enrich_graph (indexed_func) (gr[s.graph])
-    doit2()
+    
+    run_gr = make_runtime (indexed_func) (graph)
+    console.log(run_gr)
+    graph1  =  run_gr
+    drawGraph(run_gr, {x:1,y:0, l:0, f:0.00})
+    //doit2()
+    add1Menu()
   }, 2000)
 }
 
@@ -1683,7 +1691,7 @@ function resolveGraph(context, gra, ins){
     run_gr = make_runtime (indexed_func) (graph)
     console.log(run_gr)
     graph1  =  run_gr
-    drawGraph(run_gr, {x:1,y:6, l:0, f:1.00})
+    drawGraph(run_gr, {x:1,y:0, l:0, f:0.00})
     //doit2()
     add1Menu()
   }, 2000);
@@ -1695,5 +1703,7 @@ function resolveGraph(context, gra, ins){
 // -----------  from pipe.js  ---------- //
 
 gra= {"n":{"101":{"i":101,"id":"5dcadd175427e54a5fe18e88"},"102":{"i":102,"id":"5dcac5c45427e54a5fe18e86"},"103":{"i":103,"id":"5dcfebb36a2b0f10e93b09cb"},"104":{"i":104,"id":"5dcfec8b6a2b0f10e93b09cc"},"105":{"i":105,"id":"5dcaf0cd5427e54a5fe18e8a"},"106":{"i":106,"id":"5dcaf0cd5427e54a5fe18e8a"},"107":{"i":107,"id":"5dbbf356f18ff7488e9b1096"},"108":{"i":108,"id":"5dbbf356f18ff7488e9b1096"},"109":{"i":109,"id":"5dcadd175427e54a5fe18e88"},"110":{"i":110,"id":"5dcac5c45427e54a5fe18e86"}},"e":[[101,1,102,1],[102,1,103,1],[103,1,104,1],[102,1,105,1],[104,1,105,3],[102,1,106,1],[104,1,106,2],[103,1,106,3],[105,1,107,2],[106,1,108,2],[107,1,109,1],[108,1,109,2],[109,1,110,1]],"r":[]}
+
+gra= {"n":{},"e":[],"r":[]}
 
 resolveGraph([], gra, {"a": [3,5,88,9,10], "b": [5,8,12,45,30,100], "c":0, "d": "h=>h*2", "e":"h=>h*3"})
