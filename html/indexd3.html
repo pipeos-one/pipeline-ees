@@ -621,7 +621,7 @@ function zoomstart(){
 }
 
 function delClicked(mouse){
-  let least =400
+  let least =300
   if (todel){
     dx = mouse[0] - todel.x;
     dy = mouse[1] - todel.y;
@@ -641,7 +641,7 @@ function delClicked(mouse){
 }
 
 function edgeClicked(mouse){
-  let least =Infinity,dx,dy,d2,limit=300
+  let least =Infinity,dx,dy,d2,limit=200
 
   for (let n in dedges){
         //let mouse = d3.mouse(this);
@@ -724,12 +724,15 @@ function  dragstart(e){
         } 
       }
 
-      if (!delClicked(mouse))  {
-        if (!nodeClicked(mouse)) {
-          edgeClicked(mouse)
+      if (!dstart) {
+        if (!delClicked(mouse))  {
+          if (!nodeClicked(mouse)) {
+            edgeClicked(mouse)
+          }
+              
         }
-            
       }
+      
       
     
 
@@ -1030,7 +1033,7 @@ function drawNode( graph, i, transform, matrix, ndx, boxn){
   let boxp=[0,0];
   let node_info =  ctxnode.pfunction.gapi
 
-  if (ctxnode.pclassid != "5c95397d4212cc40afeec914"){
+  //if (ctxnode.pclassid != "5c95397d4212cc40afeec914"){
     //x  =  x+ l/2
     if (transform.i == i){
 
@@ -1069,13 +1072,27 @@ function drawNode( graph, i, transform, matrix, ndx, boxn){
       roundRect(x, y,boxp[0], boxp[1], transform, matrix)
       
     }
-    let o  = {i:i,x:x,y:y, xi: ndx[1], yi: ndx[0], li: max, ni:ndx}
-    //console.log(o)
-    dnodes.push(o)
-    
     context.fillStyle= "rgba(30, 30, 30, 0.5)";
     //context.fillOpacity = 0.5
     context.fill()
+    let o  = {i:i,x:x,y:y, xi: ndx[1], yi: ndx[0], li: max, ni:ndx}
+    //console.log(o)
+    dnodes.push(o)
+
+
+    if (parseInt(i) < 3000 || parseInt(i) > 3900) {
+      for (let key in node_info.inputs) {
+          drawPort(i,x,parseInt(key), y,node_info.inputs[key], [stepw,steph],scale,boxp)
+      }
+    }
+    
+    if (parseInt(i) < 3000|| parseInt(i) < 3900) {
+      for (let key in node_info.outputs) {
+          drawPort2(i,x, parseInt(key), y, node_info.outputs[key], [stepw,steph],scale,boxp)
+      }
+    }
+    
+    
 
     if (transform.i == i){
       let ed = document.getElementById("editor")
@@ -1100,19 +1117,9 @@ function drawNode( graph, i, transform, matrix, ndx, boxn){
     }
 
     
-  }
+  //}
 
-  if (parseInt(i) < 3000 || parseInt(i) > 3900) {
-    for (let key in node_info.inputs) {
-        drawPort(i,x,parseInt(key), y,node_info.inputs[key], [stepw,steph],scale,boxp)
-    }
-  }
-  
-  if (parseInt(i) < 3000|| parseInt(i) < 3900) {
-    for (let key in node_info.outputs) {
-        drawPort2(i,x, parseInt(key), y, node_info.outputs[key], [stepw,steph],scale,boxp)
-    }
-  }
+
   
 }
 
