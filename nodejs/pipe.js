@@ -688,6 +688,8 @@ sol["array"] = _.Array;
 sol["function"] = _.AnyFunction;
 sol["number[]"] = _.Array(sol["number"]);
 sol["string[]"] = _.Array(sol["string"]);
+sol["object"] = _.Object;
+sol["object[]"] = _.Array (sol["object"]);
 
 //    env :: Array Type
 const env = _.env;
@@ -1607,7 +1609,7 @@ function resolveGraph(context, gra, ins){
   resolveDb(getFuncsFromGraph(gra));
   gra0  = gra
   ins0 = ins
-  
+
   return new Promise((resolve, reject) => {
     setTimeout ( x=>{
       //graph  = enrich_graph (indexed_func) (gra)
