@@ -2,6 +2,7 @@ use neon::register_module;
 use neon_serde::export;
 use serde_derive::{Deserialize, Serialize};
 use serde_json::json;
+use rustc_version_runtime::version;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct User {
