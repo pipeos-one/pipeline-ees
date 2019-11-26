@@ -1461,7 +1461,7 @@ const run_graph =  def ('run_graph') ({})
       args  = runtime[""+y]
     }
 
-
+    args = args || [];
     //console.log("argss", x, y,JSON.stringify(args), JSON.stringify(runtime))
 
     if (contxt.pfunction.gapi.type == "function") {
