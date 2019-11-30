@@ -1368,8 +1368,6 @@ const enrich_graph = def ('enrich_graph') ({})
 
     let graph3 =  positionNodes(graph2, S.keys(graph2.n), ["0"], visitors, 0)
 
-
-    // console.log("graph3",graph3)
     graph2.init  = graph1
     return graph2
 
@@ -1522,7 +1520,14 @@ const run_graph =  def ('run_graph') ({})
 const fun_graph = def ('fun_graph') ({})
   ([pl["id_funcs"], pl["graph"], _.Object, _.Any])
   ( context => graph => ins =>{
-    return run_graph (make_runtime (context) (enrich_graph (context) (graph)) ) (ins)
+    // return run_graph (make_runtime (context) (enrich_graph (context) (graph)) ) (ins)
+    return run_graph(make_runtime_graph (context) (graph)) (ins)
+  })
+
+const make_runtime_graph = def ('make_runtime_graph') ({})
+  ([pl["id_funcs"], pl["graph"], _.Any])
+  ( context => graph => {
+    return make_runtime (context) (enrich_graph (context) (graph))
   })
 
 
@@ -1614,25 +1619,88 @@ function  dg(gi){
 //dg(0)
 var gra0,ins0
 
-function resolveGraph(context, gra, ins, lang){
+function getRuntimeGraph(context, gra) {
   //console.log("gra", context, gra, ins)
   indexed_func = index_funcs(context)
   resolveDb(getFuncsFromGraph(gra));
   gra0  = gra
+
+  return new Promise((resolve, reject) => {
+    setTimeout (() => {
+      let out
+      out = make_runtime_graph(indexed_func) (gra0);
+      // console.log(out);
+      resolve(out);
+    }, 2000);
+  })
+}
+
+export async function buildSource(context0, gra, sourceBuilder) {
+  const {rich_graph, runnable_graph, context, runtime} = await getRuntimeGraph(context0, gra);
+
+  let contextCopy = {};
+  Object.keys(rich_graph.n).forEach(nodeIndex => {
+    const node = rich_graph.n[nodeIndex];
+    const contextKey = `${node.id}_${nodeIndex}`;
+    contextCopy[contextKey] = JSON.parse(JSON.stringify(context[node.id]));
+    rich_graph.n[nodeIndex].id = contextKey;
+
+    contextCopy[contextKey].pfunction.gapi.inputs_idx = JSON.parse(JSON.stringify(contextCopy[contextKey].pfunction.gapi.inputs));
+    contextCopy[contextKey].pfunction.gapi.outputs_idx = JSON.parse(JSON.stringify(contextCopy[contextKey].pfunction.gapi.outputs));
+  });
+
+  const levelCount = runnable_graph.length;
+  const enrichedNodes = runnable_graph.map((level, levelNo) => level.map(nodeIndex => {
+    // console.log('nodeIndex', nodeIndex, levelNo);
+    const node = rich_graph.n[nodeIndex];
+    node.record = contextCopy[node.id];
+    const olen = node.record.pfunction.gapi.outputs.length;
+    const ilen = node.record.pfunction.gapi.inputs.length;
+
+    // outputs get the name of the inputs
+    if (levelNo < levelCount - 1) {
+      node.outputs = [...Array(olen + 1).keys()].slice(1).map(i => {
+        const findex = node.out[i][0][0];
+        const oindex = node.out[i][0][1] - 1;  // starts at 1
+        const output = JSON.parse(JSON.stringify(contextCopy[rich_graph.n[findex].id].pfunction.gapi.inputs[oindex]));
+
+        output.name += `_${findex}_${oindex}`;
+        contextCopy[rich_graph.n[findex].id].pfunction.gapi.inputs_idx[oindex] = output;
+        return output;
+      });
+      // console.log('node.outputs', JSON.stringify(node.outputs));
+    }
+    if (levelNo > 0) {
+      node.inputs = [...Array(ilen + 1).keys()].slice(1).map(i => {
+        // console.log('node.inputs', i, node.in[i]);
+        const findex = node.in[i][0];
+        const oindex = node.in[i][1] - 1;  // starts at 1
+        const input = JSON.parse(JSON.stringify(contextCopy[rich_graph.n[findex].id].pfunction.gapi.outputs[oindex]));
+
+        input.name += `_${findex}_${oindex}`;
+        contextCopy[rich_graph.n[findex].id].pfunction.gapi.outputs_idx[oindex] = input;
+        return input;
+      });
+      // console.log('-- node.inputs', JSON.stringify(node.inputs));
+    }
+    return node;
+  }));
+
+  const result = sourceBuilder(enrichedNodes);
+
+  return result;
+}
+
+async function resolveGraph(context, gra, ins, lang) {
+  // console.log("gra", context, gra, ins)
   ins0 = ins
   languageFlag = lang || DEFAULT_LANG;
 
-  return new Promise((resolve, reject) => {
-    setTimeout ( x=>{
-      //graph  = enrich_graph (indexed_func) (gra)
-      let out
-      //console.log("index_funcs", JSON.stringify(indexed_func), gra0)
-      out = fun_graph  (indexed_func) (gra0) (ins0);
-      console.log(out);
-      resolve(out);
-      //doit2()
-    }, 2000);
-  })
+  const runtimeGraph = await getRuntimeGraph(context, gra);
+  let out
+  out = run_graph(runtimeGraph)(ins);
+  console.log(out);
+  return out;
 }
 
 export default resolveGraph;
