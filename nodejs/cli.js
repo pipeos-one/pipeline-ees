@@ -1,6 +1,8 @@
 import arg from 'arg';
 import fs from 'fs';
-import pipe from './pipe';
+import pipe, {buildSource} from './pipe';
+import sourceBuilder from './langvisitors/langvisitor.js';
+import {cargoToml, cargoMain} from './langvisitors/cargo_templates.js';
 import tests from './tests/tests';
 
 function parseArgumentsIntoOptions(rawArgs) {
@@ -13,6 +15,7 @@ function parseArgumentsIntoOptions(rawArgs) {
      '--xfile': String,
      '--lang': String,
      '--run-tests': Boolean,
+     '--build-source': Boolean,
      '-p': '--provider',
      '-g': '--graphid',
      '-i': '--ifile',
@@ -30,8 +33,11 @@ function parseArgumentsIntoOptions(rawArgs) {
    graphid: args['--graphid'] || '',
    lang: args['--lang'] || '',
    runTests: args['--run-tests'] || false,
+   buildSource: args['--build-source'] || false,
  };
 }
+
+const builtCrate = 'builtcrate'
 
 async function cli(args) {
   const options = parseArgumentsIntoOptions(args);
@@ -44,14 +50,35 @@ async function cli(args) {
 
   let graph = await fs.promises.readFile(options.gfile, 'utf8')
     .catch(e => {throw e});
-  let input = await fs.promises.readFile(options.ifile, 'utf8')
-    .catch(e => {throw e});
+  graph = JSON.parse(graph);
+
   let context = await fs.promises.readFile(options.xfile, 'utf8')
     .catch(e => {throw e});
-
-  graph = JSON.parse(graph);
-  input = JSON.parse(input);
   context = JSON.parse(context);
+
+  if (options.buildSource) {
+    // depending on the language, choose sourceBuilder
+    const result = await buildSource(context, graph, sourceBuilder);
+
+    // for Rust
+    const libs = [{name: 'i32lib', path: '../../native/libs/i32lib', version: '0.1.0'}]
+    const cargotoml = cargoToml(builtCrate, libs);
+    const mainrs = cargoMain(libs, 'func0', result.source, result.inputs, result.outputs);
+    await fs.promises.writeFile(`./rbuild/${builtCrate}/src/main.rs`, mainrs);
+    await fs.promises.writeFile(`./rbuild/${builtCrate}/Cargo.toml`, cargotoml);
+
+    const sampleins = result.inputs.map(inp => `"${inp.name}": ${inp.type}_?`).join(',')
+    console.log('--------------');
+    console.log(`Done. Go to "./rbuild/${builtCrate}" and run:`);
+    console.log(`cargo run -- '{${sampleins}}'`);
+    console.log('--------------');
+    return;
+  }
+
+  let input = await fs.promises.readFile(options.ifile, 'utf8')
+    .catch(e => {throw e});
+  input = JSON.parse(input);
+
 
   pipe(context, graph, input, options.lang);
 }
