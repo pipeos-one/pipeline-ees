@@ -3,13 +3,6 @@ import fs from 'fs';
 import pipe from './pipe';
 import tests from './tests/tests';
 
-
-var settings = {}, s= settings, options
-
-//let o = require('./pipe').run_graph({});
-
-
-// http://192.168.1.140:3001
 function parseArgumentsIntoOptions(rawArgs) {
  const args = arg(
    {
@@ -18,6 +11,7 @@ function parseArgumentsIntoOptions(rawArgs) {
      '--graphid': String,
      '--ifile': String,
      '--xfile': String,
+     '--lang': String,
      '--run-tests': Boolean,
      '-p': '--provider',
      '-g': '--graphid',
@@ -34,46 +28,32 @@ function parseArgumentsIntoOptions(rawArgs) {
    gfile: args['--gfile'] || './graph.json',
    ifile:  args['--ifile'] || './in.json',
    graphid: args['--graphid'] || '',
+   lang: args['--lang'] || '',
    runTests: args['--run-tests'] || false,
  };
 }
 
-function setGraph(err, data){
-  if (err) throw err;
-  s.graph = JSON.parse(data);
-  //s  = Object.assign(s, options)
-  //console.log(s)
-  fs.readFile(options.ifile, 'utf8', setInput);
-}
-
-function setInput(err, data){
-  if (err) throw err;
-  s.input = JSON.parse(data);
-  //s  = Object.assign(s, options)
-  fs.readFile(options.xfile, 'utf8', setContext);
-  //console.log(s)
-  
-}
-
-function setContext(err, data){
-  if (err) throw err;
-  s.context = JSON.parse(data);
-  //s  = Object.assign(s, options)
-  //console.log(data)
-  pipe(s.context, s.graph, s.input)
-}
-
-
-export function cli(args) {
-  //console.log(args)
-  options = parseArgumentsIntoOptions(args);
-  //console.log(JSON.stringify(options))
+async function cli(args) {
+  const options = parseArgumentsIntoOptions(args);
+  // console.log(options);
 
   if (options.runTests) {
     tests();
     return;
   }
-  fs.readFile(options.gfile, 'utf8', setGraph);
- 
- //return options;
+
+  let graph = await fs.promises.readFile(options.gfile, 'utf8')
+    .catch(e => {throw e});
+  let input = await fs.promises.readFile(options.ifile, 'utf8')
+    .catch(e => {throw e});
+  let context = await fs.promises.readFile(options.xfile, 'utf8')
+    .catch(e => {throw e});
+
+  graph = JSON.parse(graph);
+  input = JSON.parse(input);
+  context = JSON.parse(context);
+
+  pipe(context, graph, input, options.lang);
 }
+
+export {cli};

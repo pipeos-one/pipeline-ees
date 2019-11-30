@@ -7,6 +7,17 @@ const rust = require('./native/index.node');
 global.S = S;
 global.rust = rust;
 
+const DEFAULT_LANG = 'javascript';
+let languageFlag = DEFAULT_LANG;
+const getFuncSource = (sources) => {
+  let source = sources[languageFlag] || sources.javascript;
+  if (!source) {
+    const lang = Object.keys(sources).find(key => key.includes('javascript.'));
+    source = sources[lang];
+  }
+  return source;
+}
+
 const instance = axios.create({
   baseURL: 'http://192.168.1.140:3001'
 });
@@ -688,6 +699,8 @@ sol["array"] = _.Array;
 sol["function"] = _.AnyFunction;
 sol["number[]"] = _.Array(sol["number"]);
 sol["string[]"] = _.Array(sol["string"]);
+sol["object"] = _.Object;
+sol["object[]"] = _.Array (sol["object"]);
 
 //    env :: Array Type
 const env = _.env;
@@ -1423,7 +1436,7 @@ const run_graph =  def ('run_graph') ({})
     S.map (y => {
     node  = rich.n[""+y]
     let contxt = runtime_graph.context[node.id]
-    let source = contxt.pfunction.sources.javascript
+    let source = getFuncSource(contxt.pfunction.sources)
     // console.log(runtime_graph, contxt, node.id, source, node)
 
 
@@ -1448,7 +1461,7 @@ const run_graph =  def ('run_graph') ({})
       args  = runtime[""+y]
     }
 
-
+    args = args || [];
     //console.log("argss", x, y,JSON.stringify(args), JSON.stringify(runtime))
 
     if (contxt.pfunction.gapi.type == "function") {
@@ -1601,13 +1614,14 @@ function  dg(gi){
 //dg(0)
 var gra0,ins0
 
-function resolveGraph(context, gra, ins){
+function resolveGraph(context, gra, ins, lang){
   //console.log("gra", context, gra, ins)
   indexed_func = index_funcs(context)
   resolveDb(getFuncsFromGraph(gra));
   gra0  = gra
   ins0 = ins
-  
+  languageFlag = lang || DEFAULT_LANG;
+
   return new Promise((resolve, reject) => {
     setTimeout ( x=>{
       //graph  = enrich_graph (indexed_func) (gra)
