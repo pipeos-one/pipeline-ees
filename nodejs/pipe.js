@@ -1586,7 +1586,7 @@ function resolveDb(arrFunc){
       let merged = {}
       responses.forEach( el  =>{
           merged[el.data._id] = el.data
-          if (el.data.pfunction.graph != {}) {
+          if (el.data.pfunction.graph && el.data.pfunction.graph != {}) {
             resolveDb(getFuncsFromGraph(el.data.pfunction.graph))
           }
       })
