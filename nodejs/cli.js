@@ -1,8 +1,7 @@
 import arg from 'arg';
 import fs from 'fs';
 import pipe, {buildSource} from './pipe';
-import sourceBuilder from './langvisitors/langvisitor.js';
-import {cargoToml, cargoMain} from './langvisitors/cargo_templates.js';
+import {sourceBuilder, crateBuilder} from './langvisitors/langvisitor.js';
 import tests from './tests/tests';
 
 function parseArgumentsIntoOptions(rawArgs) {
@@ -37,8 +36,6 @@ function parseArgumentsIntoOptions(rawArgs) {
  };
 }
 
-const builtCrate = 'builtcrate'
-
 async function cli(args) {
   const options = parseArgumentsIntoOptions(args);
   // console.log(options);
@@ -58,20 +55,22 @@ async function cli(args) {
 
   if (options.buildSource) {
     // depending on the language, choose sourceBuilder
-    const result = await buildSource(context, graph, sourceBuilder);
-
-    // for Rust
-    const libs = [{name: 'i32lib', path: '../../native/libs/i32lib', version: '0.1.0'}]
-    const cargotoml = cargoToml(builtCrate, libs);
-    const mainrs = cargoMain(libs, 'func0', result.source, result.inputs, result.outputs);
-    await fs.promises.writeFile(`./rbuild/${builtCrate}/src/main.rs`, mainrs);
-    await fs.promises.writeFile(`./rbuild/${builtCrate}/Cargo.toml`, cargotoml);
-
-    const sampleins = result.inputs.map(inp => `"${inp.name}": ${inp.type}_?`).join(',')
-    console.log('--------------');
-    console.log(`Done. Go to "./rbuild/${builtCrate}" and run:`);
-    console.log(`cargo run -- '{${sampleins}}'`);
-    console.log('--------------');
+    if (!options.lang) {
+      throw new Error('No --lang flag found');
+    }
+    const result = await buildSource(context, graph, sourceBuilder(options.lang));
+    switch(options.lang) {
+      case 'rust':
+        await crateBuilder(result);
+        break;
+      case 'solidity':
+        console.log('-----------');
+        console.log(result.source);
+        console.log('-----------');
+        break;
+      default:
+        throw new Error(`Language ${options.lang} not supported`);
+    }
     return;
   }
 

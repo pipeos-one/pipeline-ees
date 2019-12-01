@@ -26,3 +26,8 @@ Build Rust binary from Pipeline graph:
 ```
 node pipecline --gfile examples/graph6.json --build-source --lang rust
 ```
+
+Build Solidity contract from Pipeline graph:
+```
+node pipecline --gfile examples/graph7sol.json --build-source --lang solidity
+```
