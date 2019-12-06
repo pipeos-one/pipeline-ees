@@ -40,6 +40,11 @@ cargo build --target wasm32-wasi
 wasmtime target/wasm32-wasi/debug/builtcrate.wasm '{"array1_3000_0": [2,4,1],"array2_3001_0": [6,3,9],"start_3002_0": 0}'
 ```
 
+Execute graph in Node on Wasm modules:
+```
+node pipecline --gfile examples/graph6.json --lang wasm --ffi --ifile examples/in6.json
+```
+
 Build Solidity contract from Pipeline graph:
 ```
 node pipecline --gfile examples/graph7sol.json --build-source --lang solidity
