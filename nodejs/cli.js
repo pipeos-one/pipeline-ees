@@ -2,6 +2,7 @@ import arg from 'arg';
 import fs from 'fs';
 import pipe, {buildSource} from './pipe';
 import {sourceBuilder, crateBuilder} from './langvisitors/langvisitor.js';
+import {executeGraph} from './wasmffi.js';
 import tests from './tests/tests';
 
 function parseArgumentsIntoOptions(rawArgs) {
@@ -15,6 +16,7 @@ function parseArgumentsIntoOptions(rawArgs) {
      '--lang': String,
      '--run-tests': Boolean,
      '--build-source': Boolean,
+     '--ffi': Boolean,
      '-p': '--provider',
      '-g': '--graphid',
      '-i': '--ifile',
@@ -33,6 +35,7 @@ function parseArgumentsIntoOptions(rawArgs) {
    lang: args['--lang'] || '',
    runTests: args['--run-tests'] || false,
    buildSource: args['--build-source'] || false,
+   ffi: args['--ffi'] || false,
  };
 }
 
@@ -58,7 +61,9 @@ async function cli(args) {
     if (!options.lang) {
       throw new Error('No --lang flag found');
     }
-    const result = await buildSource(context, graph, sourceBuilder(options.lang));
+    const nodes = await buildSource(context, graph);
+    const result = sourceBuilder(options.lang)(nodes);
+
     switch(options.lang) {
       case 'rust':
         await crateBuilder(result);
@@ -78,6 +83,12 @@ async function cli(args) {
     .catch(e => {throw e});
   input = JSON.parse(input);
 
+  if (options.ffi) {
+    const nodes = await buildSource(context, graph);
+    const result = await executeGraph(nodes, input);
+    console.log(result);
+    return;
+  }
 
   pipe(context, graph, input, options.lang);
 }

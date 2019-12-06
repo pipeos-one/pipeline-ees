@@ -1635,7 +1635,7 @@ function getRuntimeGraph(context, gra) {
   })
 }
 
-export async function buildSource(context0, gra, sourceBuilder) {
+export async function buildSource(context0, gra) {
   const {rich_graph, runnable_graph, context, runtime} = await getRuntimeGraph(context0, gra);
 
   let contextCopy = {};
@@ -1686,9 +1686,7 @@ export async function buildSource(context0, gra, sourceBuilder) {
     return node;
   }));
 
-  const result = sourceBuilder(enrichedNodes);
-
-  return result;
+  return enrichedNodes;
 }
 
 async function resolveGraph(context, gra, ins, lang) {

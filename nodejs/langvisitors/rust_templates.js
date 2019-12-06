@@ -45,7 +45,7 @@ const buildGraphStep = (node) => {
   }
 
   // TODO: fix multiple outputs
-  return `  let [${outs.join(', ')}] = ${fcall}`;
+  return `  let (${outs.join(', ')}) = ${fcall}`;
 }
 
 const buildFout = outputs => {
